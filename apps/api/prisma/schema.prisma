@@ -1,0 +1,43 @@
+// Esquema do banco de dados. Cada módulo do Entregável 1 acrescenta seus modelos aqui.
+// Após alterar: npx prisma migrate dev --name <descricao>
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// MOD01 – Acesso
+
+model Usuario {
+  id               Int       @id @default(autoincrement())
+  nome             String    @db.VarChar(120)
+  email            String    @unique @db.VarChar(150) // RN11
+  senhaHash        String    @map("senha_hash") @db.VarChar(255)
+  tentativasFalhas Int       @default(0) @map("tentativas_falhas") @db.SmallInt // RN09
+  bloqueadoAte     DateTime? @map("bloqueado_ate")
+  ativo            Boolean   @default(true) // RN10
+  criadoEm         DateTime  @default(now()) @map("criado_em")
+  atualizadoEm     DateTime  @updatedAt @map("atualizado_em")
+
+  tokensRecuperacao TokenRecuperacaoSenha[]
+
+  @@map("usuario")
+}
+
+model TokenRecuperacaoSenha {
+  id        Int       @id @default(autoincrement())
+  usuarioId Int       @map("usuario_id")
+  tokenHash String    @unique @map("token_hash") @db.VarChar(64)
+  expiraEm  DateTime  @map("expira_em")
+  usadoEm   DateTime? @map("usado_em")
+  criadoEm  DateTime  @default(now()) @map("criado_em")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("token_recuperacao_senha")
+}
