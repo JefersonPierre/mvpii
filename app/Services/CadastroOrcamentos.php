@@ -138,7 +138,9 @@ class CadastroOrcamentos
     private function numerar(Orcamento $orcamento): void
     {
         $orcamento->ano = (int) now()->format('Y');
-        $orcamento->sequencia = (int) Orcamento::where('ano', $orcamento->ano)->lockForUpdate()->max('sequencia') + 1;
+        // Trava a linha do maior número (o PostgreSQL não aceita FOR UPDATE junto com MAX).
+        $orcamento->sequencia = (int) Orcamento::where('ano', $orcamento->ano)
+            ->orderByDesc('sequencia')->lockForUpdate()->value('sequencia') + 1;
         $orcamento->revisao = 1;
     }
 

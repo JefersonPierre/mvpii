@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Usuario;
 use App\Services\CadastroOrcamentos;
 use App\Services\CopiaSeguranca;
 use Illuminate\Support\Facades\Artisan;
@@ -43,6 +44,16 @@ Artisan::command('banco:restaurar {arquivo? : nome ou caminho da cópia; sem ele
         return 1;
     }
 })->purpose('Restaura o banco SQLite a partir de uma cópia (RNF06)');
+
+// Publicação: atualiza as tabelas e, só na primeira vez (banco sem usuários), carrega os dados iniciais.
+// Roda a cada início do servidor; por isso não recria o que foi alterado ou inativado depois.
+Artisan::command('sistema:preparar', function () {
+    $this->call('migrate', ['--force' => true]);
+    if (Usuario::query()->doesntExist()) {
+        $this->call('db:seed', ['--force' => true]);
+    }
+    $this->call('orcamentos:expirar');
+})->purpose('Prepara o banco ao iniciar o servidor publicado');
 
 // Em produção, o cron do servidor chama "php artisan schedule:run" a cada minuto.
 Schedule::command('orcamentos:expirar')->dailyAt('00:10');

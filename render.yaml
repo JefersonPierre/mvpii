@@ -1,0 +1,40 @@
+# Publicação no Render (plano gratuito): New → Blueprint → repositório mvpii.
+# Os valores com "sync: false" são pedidos no painel do Render na criação e não ficam no repositório.
+services:
+  - type: web
+    name: laboratorio-iqa
+    runtime: docker
+    plan: free
+    branch: main
+    healthCheckPath: /up
+    envVars:
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_NAME
+        value: Laboratório IQA
+      - key: APP_LOCALE
+        value: pt_BR
+      - key: APP_FAKER_LOCALE
+        value: pt_BR
+      - key: LAB_DEMONSTRACAO
+        value: "true"
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL # endereço de conexão do Neon (postgresql://...?sslmode=require)
+        sync: false
+      - key: ADMIN_EMAIL # usuário que o professor vai usar
+        sync: false
+      - key: ADMIN_SENHA # mínimo de 8 caracteres, com letras e números (RN09)
+        sync: false
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_LIFETIME
+        value: "30"
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: MAIL_MAILER
+        value: log
+      - key: MAIL_FROM_ADDRESS
+        value: nao-responda@laboratorio.local

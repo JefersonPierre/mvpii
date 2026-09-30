@@ -26,7 +26,8 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Ordem alfabética do português: "Água" antes de "Efluente" e "pH" antes de "Turbidez".
-     * MySQL e PostgreSQL já fazem isso pela collation do banco; no SQLite (desenvolvimento) registramos uma.
+     * No SQLite (desenvolvimento) registramos uma collation; no PostgreSQL usamos a collation ICU do banco, porque a
+     * padrão de muitos serviços (C.UTF-8) põe maiúsculas antes de minúsculas e as letras acentuadas no fim.
      */
     private function ordemAlfabeticaEmPortugues(): void
     {
@@ -42,8 +43,14 @@ class AppServiceProvider extends ServiceProvider
         // Uso: ->orderByNome() ou ->orderByNome('identificacao').
         Builder::macro('orderByNome', function (string $coluna = 'nome', string $direcao = 'asc') {
             /** @var Builder $this */
-            return $this->getConnection()->getDriverName() === 'sqlite'
-                ? $this->orderByRaw($this->getGrammar()->wrap($coluna).' COLLATE PTBR '.($direcao === 'desc' ? 'desc' : 'asc'))
+            $collation = match ($this->getConnection()->getDriverName()) {
+                'sqlite' => 'PTBR',
+                'pgsql' => '"und-x-icu"',
+                default => null,
+            };
+
+            return $collation
+                ? $this->orderByRaw($this->getGrammar()->wrap($coluna)." COLLATE {$collation} ".($direcao === 'desc' ? 'desc' : 'asc'))
                 : $this->orderBy($coluna, $direcao);
         });
 
