@@ -15,7 +15,7 @@
 <x-layouts.base :titulo="$titulo">
     <div class="flex min-h-screen flex-col md:flex-row">
         <aside class="flex shrink-0 flex-col bg-slate-800 p-4 text-slate-200 md:w-60">
-            <p class="mb-6 text-lg font-semibold text-white">Laboratório de Análise de Água</p>
+            <p class="mb-6 text-lg font-semibold text-white">Laboratório IQA</p>
             <nav class="flex flex-1 flex-wrap gap-1 md:flex-col">
                 @foreach ($menu as $item)
                     <a href="{{ route($item['rota']) }}"

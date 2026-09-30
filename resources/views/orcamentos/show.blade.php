@@ -57,7 +57,7 @@
             </div>
         @elseif ($orcamento->situacao === Orcamento::EXPIRADO)
             <div class="alerta border-amber-200 bg-amber-50 text-amber-900">
-                A validade venceu em {{ $orcamento->valido_ate->format('d/m/Y') }} sem resposta do cliente. Para retomar, crie uma nova revisão (RN17).
+                A validade venceu em {{ $orcamento->valido_ate->format('d/m/Y') }} sem resposta do cliente. Para retomar, crie uma nova revisão.
             </div>
         @elseif ($orcamento->situacao === Orcamento::SUBSTITUIDO)
             <div class="alerta border-slate-200 bg-slate-50 text-slate-700">Esta revisão foi substituída por uma mais recente.</div>

@@ -48,7 +48,7 @@
                 <x-selo-orcamento :situacao="$orcamento->situacao" />
             @endunless
         </div>
-        <p class="text-sm text-slate-500">O número é gerado ao salvar. Os preços são copiados do catálogo e não mudam depois (RN15).</p>
+        <p class="text-sm text-slate-500">O número é gerado ao salvar. Os preços são copiados do catálogo e não mudam depois.</p>
     </div>
 
     <form method="POST" action="{{ $novo ? route('orcamentos.store') : route('orcamentos.update', $orcamento) }}"
@@ -141,7 +141,7 @@
                            value="{{ old('desconto_percentual', Numero::decimal($orcamento->desconto_percentual)) }}"
                            data-desconto-maximo="{{ $descontoMaximo }}"
                            @class(['campo font-mono', 'campo-erro' => $errors->has('desconto_percentual')])>
-                    <p class="ajuda">Máximo permitido: {{ Numero::decimal($descontoMaximo) }}% (RN14).</p>
+                    <p class="ajuda">Máximo permitido: {{ Numero::decimal($descontoMaximo) }}%.</p>
                     <p class="erro" data-aviso-desconto hidden></p>
                     @error('desconto_percentual') <p class="erro">{{ $message }}</p> @enderror
                 </div>
