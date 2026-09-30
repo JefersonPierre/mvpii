@@ -7,6 +7,7 @@ import { Inicio } from './pages/Inicio';
 import { Login } from './pages/Login';
 import { NovaSenha } from './pages/NovaSenha';
 import { RecuperarSenha } from './pages/RecuperarSenha';
+import { Usuarios } from './pages/usuarios/Usuarios';
 
 export function App() {
   const { usuario, carregando } = useAuth();
@@ -37,7 +38,7 @@ export function App() {
         <Route path="orcamentos" element={<EmConstrucao titulo="Orçamentos" />} />
         <Route path="clientes" element={<EmConstrucao titulo="Clientes" />} />
         <Route path="catalogo" element={<EmConstrucao titulo="Catálogo técnico" />} />
-        <Route path="usuarios" element={<EmConstrucao titulo="Usuários" />} />
+        <Route path="usuarios" element={<Usuarios />} />
         <Route path="configuracoes" element={<EmConstrucao titulo="Configurações" />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

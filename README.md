@@ -73,7 +73,7 @@ apontar `SMTP_*` para um serviço de e-mail real e configurar HTTPS e a cópia d
 
 - [x] Estrutura do projeto e ambiente Docker
 - [x] MOD01 – Login e recuperação de senha (RF01, RF02)
-- [ ] MOD01 – Cadastro de usuários (RF03)
+- [x] MOD01 – Cadastro de usuários (RF03)
 - [ ] MOD02 – Clientes (RF04–RF08)
 - [ ] MOD03 – Pontos de coleta (RF09–RF11)
 - [ ] MOD04 – Catálogo técnico (RF12–RF16)
