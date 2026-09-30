@@ -1,7 +1,8 @@
 {{-- UC03 – Cadastrar cliente (RF04, RF05, RF06, RN01, RN02) --}}
 @php
     $novo = ! $cliente->exists;
-    $titulo = $novo ? ($cliente->interessado ? 'Cadastro rápido de interessado' : 'Novo cliente') : 'Editar '.($cliente->interessado ? 'interessado' : 'cliente');
+    $titulo = $novo ? ($cliente->interessado ? 'Cadastro rápido de interessado' : 'Novo cliente')
+        : (request('orcamento') && $cliente->interessado ? 'Completar cadastro' : 'Editar '.($cliente->interessado ? 'interessado' : 'cliente'));
 
     // Completar o cadastro para aprovar um orçamento (UC10 2a) já marca "Cliente completo".
     $completando = ! $novo && request('orcamento');

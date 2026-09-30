@@ -69,6 +69,13 @@ Ajustar o `.env`: `APP_ENV=production`, `APP_DEBUG=false`, banco MySQL/PostgreSQ
 com os dados do servidor de e-mail real, HTTPS e cópia de segurança do banco. Depois: `composer install --no-dev`,
 `npm run build` e `php artisan migrate --force`.
 
+No servidor, configure também:
+
+- o agendador do Laravel no cron (`* * * * * php artisan schedule:run`), que marca como Expirado, todo dia, os
+  orçamentos enviados com a validade vencida (RN17). O comando manual é `php artisan orcamentos:expirar`;
+- os dados do laboratório que saem no PDF do orçamento (`LABORATORIO_NOME`, `LABORATORIO_ENDERECO`, `LABORATORIO_TELEFONE`,
+  `LABORATORIO_EMAIL` e `LABORATORIO_CNPJ`).
+
 ## Andamento do Entregável 1
 
 - [x] Estrutura do projeto
@@ -77,5 +84,5 @@ com os dados do servidor de e-mail real, HTTPS e cópia de segurança do banco. 
 - [x] MOD02 – Clientes (RF04–RF08)
 - [x] MOD03 – Pontos de coleta (RF09–RF11)
 - [x] MOD04 – Catálogo técnico (RF12–RF16)
-- [ ] MOD05 – Orçamentos (RF17–RF22)
+- [x] MOD05 – Orçamentos (RF17–RF22)
 - [ ] MOD06 – Consulta e histórico (RF23–RF24)

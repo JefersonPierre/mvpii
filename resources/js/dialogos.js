@@ -19,3 +19,8 @@ document.addEventListener('click', (evento) => {
         fechar.closest('dialog').close();
     }
 });
+
+// Reabre o diálogo que voltou com erro de validação (ex.: resposta do orçamento sem motivo).
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('dialog[data-abrir-ao-carregar]').forEach((dialogo) => dialogo.showModal());
+});

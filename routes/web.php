@@ -5,12 +5,14 @@ use App\Http\Controllers\Auth\NovaSenhaController;
 use App\Http\Controllers\Auth\RecuperarSenhaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracaoController;
+use App\Http\Controllers\EnvioOrcamentoController;
 use App\Http\Controllers\LegislacaoController;
 use App\Http\Controllers\LimiteController;
 use App\Http\Controllers\OrcamentoController;
 use App\Http\Controllers\PacoteController;
 use App\Http\Controllers\ParametroController;
 use App\Http\Controllers\PontoColetaController;
+use App\Http\Controllers\RespostaOrcamentoController;
 use App\Http\Controllers\TipoAmostraController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Middleware\UsuarioAtivo;
@@ -80,6 +82,10 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
     Route::get('/orcamentos/buscar-clientes', [OrcamentoController::class, 'buscarClientes'])->name('orcamentos.buscar-clientes');
     Route::post('/orcamentos/{orcamento}/duplicar', [OrcamentoController::class, 'duplicar'])->name('orcamentos.duplicar');
     Route::post('/orcamentos/{orcamento}/revisao', [OrcamentoController::class, 'novaRevisao'])->name('orcamentos.revisao');
+    Route::get('/orcamentos/{orcamento}/pdf', [EnvioOrcamentoController::class, 'pdf'])->name('orcamentos.pdf');
+    Route::get('/orcamentos/{orcamento}/envio', [EnvioOrcamentoController::class, 'create'])->name('orcamentos.envio');
+    Route::post('/orcamentos/{orcamento}/envio', [EnvioOrcamentoController::class, 'store']);
+    Route::post('/orcamentos/{orcamento}/resposta', [RespostaOrcamentoController::class, 'store'])->name('orcamentos.resposta');
     Route::resource('orcamentos', OrcamentoController::class)->except('destroy');
     // MOD05 – Configurações comerciais do orçamento (RF22)
     Route::get('/configuracoes', [ConfiguracaoController::class, 'edit'])->name('configuracoes');

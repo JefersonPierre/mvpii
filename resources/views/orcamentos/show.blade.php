@@ -26,6 +26,12 @@
             <div class="flex flex-wrap gap-2">
                 @if ($orcamento->editavel())
                     <a href="{{ route('orcamentos.edit', $orcamento) }}" class="botao botao-secundario">Editar</a>
+                    <a href="{{ route('orcamentos.envio', $orcamento) }}" class="botao botao-primario">Enviar</a>
+                @else
+                    <a href="{{ route('orcamentos.pdf', $orcamento) }}" target="_blank" class="botao botao-secundario">Ver PDF</a>
+                @endif
+                @if ($orcamento->situacao === Orcamento::ENVIADO)
+                    <button type="button" class="botao botao-primario" data-abrir-dialogo="dialogo-resposta">Registrar resposta</button>
                 @endif
                 @if ($orcamento->permiteNovaRevisao())
                     <form method="POST" action="{{ route('orcamentos.revisao', $orcamento) }}">
@@ -129,6 +135,69 @@
             @endif
         </aside>
     </div>
+
+    @if ($orcamento->situacao === Orcamento::ENVIADO)
+        {{-- UC10 – Registrar resposta (RF19, RN18, RN19) --}}
+        <dialog id="dialogo-resposta" class="dialogo max-w-lg" aria-labelledby="titulo-resposta"
+                @if ($errors->hasAny(['resultado', 'data_resposta', 'motivo_recusa', 'motivo_detalhe']) || old('resultado')) data-abrir-ao-carregar @endif>
+            <form method="POST" action="{{ route('orcamentos.resposta', $orcamento) }}" class="space-y-4" novalidate>
+                @csrf
+                <h2 id="titulo-resposta" class="text-lg font-semibold">Registrar resposta · {{ $orcamento->numeroComRevisao() }}</h2>
+                <fieldset>
+                    <legend class="rotulo">Resposta do cliente *</legend>
+                    <div class="flex gap-4 text-sm">
+                        @foreach ([Orcamento::APROVADO => 'Aprovado', Orcamento::RECUSADO => 'Recusado'] as $valor => $rotulo)
+                            <label class="flex items-center gap-2">
+                                <input type="radio" name="resultado" value="{{ $valor }}" @checked(old('resultado') === $valor) class="accent-teal-600"> {{ $rotulo }}
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('resultado') <p class="erro">{{ $message }}</p> @enderror
+                </fieldset>
+                <div>
+                    <label for="data_resposta" class="rotulo">Data da resposta *</label>
+                    <input id="data_resposta" name="data_resposta" type="date" max="{{ today()->toDateString() }}"
+                           value="{{ old('data_resposta', today()->toDateString()) }}"
+                           @class(['campo', 'campo-erro' => $errors->has('data_resposta')])>
+                    @error('data_resposta') <p class="erro">{{ $message }}</p> @enderror
+                </div>
+
+                @unless ($orcamento->cliente->cadastroCompleto())
+                    {{-- RN18 / UC10 2a --}}
+                    <div class="alerta border-amber-200 bg-amber-50 text-amber-900">
+                        {{ $orcamento->cliente->interessado ? 'Este cliente ainda é um interessado.' : 'O cadastro do cliente está incompleto.' }}
+                        Complete CPF/CNPJ e endereço para aprovar.
+                        <a href="{{ route('clientes.edit', [$orcamento->cliente, 'orcamento' => $orcamento->id]) }}" class="font-medium underline">Completar cadastro</a>
+                    </div>
+                @endunless
+
+                <fieldset class="space-y-3 border-t border-slate-200 pt-3">
+                    <legend class="rotulo">Se recusado</legend>
+                    <div>
+                        <label for="motivo_recusa" class="rotulo">Motivo da recusa</label>
+                        <select id="motivo_recusa" name="motivo_recusa" @class(['campo', 'campo-erro' => $errors->has('motivo_recusa')])>
+                            <option value=""></option>
+                            @foreach (Orcamento::MOTIVOS_RECUSA as $valor => $rotulo)
+                                <option value="{{ $valor }}" @selected(old('motivo_recusa') === $valor)>{{ $rotulo }}</option>
+                            @endforeach
+                        </select>
+                        @error('motivo_recusa') <p class="erro">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="motivo_detalhe" class="rotulo">Detalhe (obrigatório em "Outro")</label>
+                        <input id="motivo_detalhe" name="motivo_detalhe" maxlength="255" value="{{ old('motivo_detalhe') }}"
+                               @class(['campo', 'campo-erro' => $errors->has('motivo_detalhe')])>
+                        @error('motivo_detalhe') <p class="erro">{{ $message }}</p> @enderror
+                    </div>
+                </fieldset>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button" class="botao botao-secundario" data-fechar-dialogo>Cancelar</button>
+                    <button type="submit" class="botao botao-primario">Confirmar</button>
+                </div>
+            </form>
+        </dialog>
+    @endif
 
     <div class="cartao space-y-3">
         <h2 class="text-lg font-semibold">Histórico</h2>
