@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Auditoria;
 use Collator;
 use Illuminate\Database\Events\ConnectionEstablished;
 use Illuminate\Database\Query\Builder;
@@ -14,7 +15,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Uma instância por requisição/comando, para o modo "sistema" da auditoria valer em todos os serviços.
+        $this->app->scoped(Auditoria::class);
     }
 
     public function boot(): void

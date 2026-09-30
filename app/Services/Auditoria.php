@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\RegistroAuditoria;
+use Closure;
 use DateTimeInterface;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,28 @@ class Auditoria
 
     public const REATIVACAO = 'REATIVACAO';
 
+    /** Quando verdadeiro, as alterações são registradas como feitas pelo sistema (sem usuário). */
+    private bool $sistema = false;
+
+    /**
+     * Executa uma operação automática (ex.: expiração de orçamentos, RN17) registrando o "Sistema" como
+     * responsável, e não o usuário que por acaso abriu a tela.
+     *
+     * @template T
+     *
+     * @param  Closure(): T  $operacao
+     * @return T
+     */
+    public function comoSistema(Closure $operacao): mixed
+    {
+        $this->sistema = true;
+        try {
+            return $operacao();
+        } finally {
+            $this->sistema = false;
+        }
+    }
+
     /**
      * Grava uma linha por campo que mudou. Chame dentro da mesma transação da operação.
      *
@@ -29,7 +52,7 @@ class Auditoria
         $agora = now();
         foreach (self::diferencas($antes, $depois, $campos) as $d) {
             RegistroAuditoria::create([
-                'usuario_id' => Auth::id(),
+                'usuario_id' => $this->sistema ? null : Auth::id(),
                 'entidade' => $entidade,
                 'registro_id' => $registroId,
                 'acao' => $acao,

@@ -64,9 +64,14 @@ class ClienteController extends Controller
     public function store(ClienteRequest $request): RedirectResponse
     {
         $cliente = $this->cadastro->salvar(new Cliente, $request->validated());
+        $mensagem = $cliente->interessado ? 'Interessado cadastrado.' : 'Cliente cadastrado.';
 
-        return redirect()->route('clientes.show', $cliente)
-            ->with('sucesso', $cliente->interessado ? 'Interessado cadastrado.' : 'Cliente cadastrado.');
+        // UC08 1a: cadastro rápido feito a partir do orçamento volta para o orçamento, já com o cliente.
+        if ($request->input('voltar_orcamento') === 'novo') {
+            return redirect()->route('orcamentos.create', ['cliente' => $cliente->id])->with('sucesso', "{$mensagem} Continue o orçamento.");
+        }
+
+        return redirect()->route('clientes.show', $cliente)->with('sucesso', $mensagem);
     }
 
     /** RF23: ficha do cliente com abas (dados, contatos, pontos de coleta, orçamentos e histórico). */
@@ -75,7 +80,7 @@ class ClienteController extends Controller
         $aba = in_array($request->query('aba'), ['dados', 'contatos', 'pontos', 'orcamentos', 'historico'], true)
             ? $request->query('aba') : 'dados';
 
-        $cliente->load(['contatos', 'pontosColeta.tipoAmostra']);
+        $cliente->load(['contatos', 'pontosColeta.tipoAmostra', 'orcamentos']);
         $historico = $aba === 'historico' ? $this->historico($cliente) : null;
 
         return view('clientes.show', compact('cliente', 'aba', 'historico'));
@@ -112,6 +117,12 @@ class ClienteController extends Controller
     public function update(ClienteRequest $request, Cliente $cliente): RedirectResponse
     {
         $this->cadastro->salvar($cliente, $request->validated());
+
+        // UC10 2a: cadastro completado para aprovar um orçamento volta para o orçamento.
+        $orcamento = $cliente->orcamentos()->find($request->input('voltar_orcamento'));
+        if ($orcamento) {
+            return redirect()->route('orcamentos.show', $orcamento)->with('sucesso', 'Cadastro atualizado. Agora registre a resposta do cliente.');
+        }
 
         return redirect()->route('clientes.show', $cliente)->with('sucesso', 'Cadastro atualizado.');
     }

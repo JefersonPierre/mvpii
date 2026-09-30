@@ -58,6 +58,17 @@ class Cliente extends Model
         return $this->hasMany(PontoColeta::class)->orderByDesc('ativo')->orderByNome('identificacao');
     }
 
+    public function orcamentos(): HasMany
+    {
+        return $this->hasMany(Orcamento::class)->orderByDesc('ano')->orderByDesc('sequencia')->orderByDesc('revisao');
+    }
+
+    /** RN18: para aprovar um orçamento, o cadastro precisa ter CPF/CNPJ e endereço. */
+    public function cadastroCompleto(): bool
+    {
+        return ! $this->interessado && filled($this->documento) && $this->temEndereco() && filled($this->cep);
+    }
+
     public function documentoFormatado(): string
     {
         return $this->documento ? Documento::formatar($this->documento) : '';

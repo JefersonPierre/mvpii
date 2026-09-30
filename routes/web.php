@@ -7,6 +7,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracaoController;
 use App\Http\Controllers\LegislacaoController;
 use App\Http\Controllers\LimiteController;
+use App\Http\Controllers\OrcamentoController;
 use App\Http\Controllers\PacoteController;
 use App\Http\Controllers\ParametroController;
 use App\Http\Controllers\PontoColetaController;
@@ -75,8 +76,11 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
         Route::delete('/limites/{limite}', [LimiteController::class, 'destroy'])->name('limites.destroy');
     });
 
-    // Próximos módulos do Entregável 1
-    Route::view('/orcamentos', 'em-construcao', ['titulo' => 'Orçamentos'])->name('orcamentos');
+    // MOD05 – Orçamentos (RF17–RF21)
+    Route::get('/orcamentos/buscar-clientes', [OrcamentoController::class, 'buscarClientes'])->name('orcamentos.buscar-clientes');
+    Route::post('/orcamentos/{orcamento}/duplicar', [OrcamentoController::class, 'duplicar'])->name('orcamentos.duplicar');
+    Route::post('/orcamentos/{orcamento}/revisao', [OrcamentoController::class, 'novaRevisao'])->name('orcamentos.revisao');
+    Route::resource('orcamentos', OrcamentoController::class)->except('destroy');
     // MOD05 – Configurações comerciais do orçamento (RF22)
     Route::get('/configuracoes', [ConfiguracaoController::class, 'edit'])->name('configuracoes');
     Route::put('/configuracoes', [ConfiguracaoController::class, 'update']);

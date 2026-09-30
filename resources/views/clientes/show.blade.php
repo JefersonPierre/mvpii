@@ -4,7 +4,7 @@
         'dados' => 'Dados',
         'contatos' => 'Contatos ('.$cliente->contatos->count().')',
         'pontos' => 'Pontos de coleta ('.$cliente->pontosColeta->where('ativo', true)->count().')',
-        'orcamentos' => 'Orçamentos',
+        'orcamentos' => 'Orçamentos ('.$cliente->orcamentos->count().')',
         'historico' => 'Histórico',
     ];
     $camposHistorico = [
@@ -158,7 +158,33 @@
                 @break
 
             @case('orcamentos')
-                <div class="alerta alerta-info">Os orçamentos do cliente aparecerão aqui no MOD05.</div>
+                {{-- RF23: orçamentos do cliente --}}
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <p class="text-sm text-slate-500">Todas as revisões, da mais recente para a mais antiga.</p>
+                    @if ($cliente->ativo)
+                        <a href="{{ route('orcamentos.create', ['cliente' => $cliente->id]) }}" class="botao botao-primario">Novo orçamento</a>
+                    @endif
+                </div>
+                @if ($cliente->orcamentos->isEmpty())
+                    <p class="text-slate-500">Nenhum orçamento para este cliente.</p>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="tabela min-w-[560px]">
+                            <thead><tr><th>Número</th><th>Emissão</th><th>Validade</th><th class="text-right">Valor</th><th>Situação</th></tr></thead>
+                            <tbody>
+                                @foreach ($cliente->orcamentos as $o)
+                                    <tr>
+                                        <td><a href="{{ route('orcamentos.show', $o) }}" class="font-mono text-teal-800 hover:underline">{{ $o->numeroComRevisao() }}</a></td>
+                                        <td class="font-mono text-xs">{{ $o->criado_em->format('d/m/Y') }}</td>
+                                        <td class="font-mono text-xs">{{ $o->valido_ate?->format('d/m/Y') ?? '—' }}</td>
+                                        <td class="text-right font-mono">{{ \App\Support\Numero::moeda($o->valor_total) }}</td>
+                                        <td><x-selo-orcamento :situacao="$o->situacao" /></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
                 @break
 
             @case('historico')

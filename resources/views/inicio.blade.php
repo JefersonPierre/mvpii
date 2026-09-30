@@ -3,7 +3,7 @@
     <div class="cartao">
         <p class="mb-4">O atendimento começa pelo orçamento. Use os atalhos abaixo:</p>
         <div class="flex flex-wrap gap-2">
-            <a href="{{ route('orcamentos') }}" class="botao botao-primario">Novo orçamento</a>
+            <a href="{{ route('orcamentos.create') }}" class="botao botao-primario">Novo orçamento</a>
             <a href="{{ route('clientes.index') }}" class="botao botao-secundario">Pesquisar cliente</a>
         </div>
     </div>

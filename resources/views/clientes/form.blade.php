@@ -3,7 +3,9 @@
     $novo = ! $cliente->exists;
     $titulo = $novo ? ($cliente->interessado ? 'Cadastro rápido de interessado' : 'Novo cliente') : 'Editar '.($cliente->interessado ? 'interessado' : 'cliente');
 
-    $cadastro = old('cadastro', $cliente->interessado ? 'interessado' : 'cliente');
+    // Completar o cadastro para aprovar um orçamento (UC10 2a) já marca "Cliente completo".
+    $completando = ! $novo && request('orcamento');
+    $cadastro = old('cadastro', $cliente->interessado && ! $completando ? 'interessado' : 'cliente');
     $tipoPessoa = old('tipo_pessoa', $cliente->tipo_pessoa ?? 'J');
 
     // Contatos: os enviados (após erro de validação), os já gravados ou uma linha em branco.
@@ -33,6 +35,10 @@
           data-form-cliente data-consulta-cep="{{ config('laboratorio.consulta_cep') ? '1' : '0' }}"
           class="cartao max-w-5xl space-y-6" novalidate>
         @csrf
+        {{-- Volta para o orçamento depois de salvar: cadastro rápido (UC08 1a) ou completar cadastro (UC10 2a) --}}
+        @if (request('orcamento') || old('voltar_orcamento'))
+            <input type="hidden" name="voltar_orcamento" value="{{ old('voltar_orcamento', request('orcamento')) }}">
+        @endif
         @unless ($novo) @method('PUT') @endunless
 
         @if ($errors->any())

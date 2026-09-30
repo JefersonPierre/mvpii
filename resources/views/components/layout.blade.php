@@ -3,7 +3,7 @@
 @php
     $menu = [
         ['rotulo' => 'Início', 'rota' => 'inicio', 'ativo' => request()->routeIs('inicio')],
-        ['rotulo' => 'Orçamentos', 'rota' => 'orcamentos', 'ativo' => request()->routeIs('orcamentos*')],
+        ['rotulo' => 'Orçamentos', 'rota' => 'orcamentos.index', 'ativo' => request()->routeIs('orcamentos.*')],
         ['rotulo' => 'Clientes', 'rota' => 'clientes.index', 'ativo' => request()->routeIs('clientes.*', 'pontos.*')],
         ['rotulo' => 'Catálogo técnico', 'rota' => 'catalogo', 'ativo' => request()->routeIs('catalogo*')],
         ['rotulo' => 'Usuários', 'rota' => 'usuarios.index', 'ativo' => request()->routeIs('usuarios.*')],
