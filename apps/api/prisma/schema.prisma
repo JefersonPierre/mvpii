@@ -25,6 +25,7 @@ model Usuario {
   atualizadoEm     DateTime  @updatedAt @map("atualizado_em")
 
   tokensRecuperacao TokenRecuperacaoSenha[]
+  auditorias        RegistroAuditoria[]
 
   @@map("usuario")
 }
@@ -40,4 +41,23 @@ model TokenRecuperacaoSenha {
   usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("token_recuperacao_senha")
+}
+
+// MOD06 – Histórico de alterações (RN08): uma linha por campo alterado.
+
+model RegistroAuditoria {
+  id            Int      @id @default(autoincrement())
+  usuarioId     Int?     @map("usuario_id")
+  entidade      String   @db.VarChar(50)
+  registroId    Int      @map("registro_id")
+  acao          String   @db.VarChar(20) // INCLUSAO, ALTERACAO, INATIVACAO, REATIVACAO
+  campo         String?  @db.VarChar(50)
+  valorAnterior String?  @map("valor_anterior")
+  valorNovo     String?  @map("valor_novo")
+  dataHora      DateTime @default(now()) @map("data_hora")
+
+  usuario Usuario? @relation(fields: [usuarioId], references: [id])
+
+  @@index([entidade, registroId])
+  @@map("registro_auditoria")
 }

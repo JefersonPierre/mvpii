@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   MAX_TENTATIVAS,
   MINUTOS_BLOQUEIO,
+  MINUTOS_VALIDADE_CONVITE,
   MINUTOS_VALIDADE_LINK,
   estaBloqueado,
   registrarFalha,
@@ -72,17 +73,36 @@ export class AuthService {
   async solicitarRecuperacao(email: string, agora = new Date()): Promise<void> {
     const usuario = await this.prisma.usuario.findUnique({ where: { email: email.trim().toLowerCase() } });
     if (!usuario || !usuario.ativo) return;
+    await this.enviarLinkSenha(usuario, 'recuperacao', agora);
+  }
 
+  /** Gera o link de criação de senha e envia por e-mail (recuperação ou novo usuário). */
+  async enviarLinkSenha(
+    usuario: { id: number; nome: string; email: string },
+    tipo: 'recuperacao' | 'convite',
+    agora = new Date(),
+  ): Promise<void> {
+    const minutos = tipo === 'convite' ? MINUTOS_VALIDADE_CONVITE : MINUTOS_VALIDADE_LINK;
     const token = randomBytes(32).toString('hex');
     await this.prisma.tokenRecuperacaoSenha.create({
       data: {
         usuarioId: usuario.id,
         tokenHash: hashToken(token),
-        expiraEm: new Date(agora.getTime() + MINUTOS_VALIDADE_LINK * 60_000),
+        expiraEm: new Date(agora.getTime() + minutos * 60_000),
       },
     });
 
     const link = `${this.config.get('WEB_URL', 'http://localhost:5173')}/nova-senha?token=${token}`;
+    if (tipo === 'convite') {
+      await this.mail.enviar({
+        para: usuario.email,
+        assunto: 'Seu acesso ao sistema do laboratório',
+        texto:
+          `Olá, ${usuario.nome}.\n\nVocê foi cadastrado no sistema do laboratório. Para criar sua senha, ` +
+          `acesse o link abaixo. Ele vale por 24 horas.\n\n${link}`,
+      });
+      return;
+    }
     await this.mail.enviar({
       para: usuario.email,
       assunto: 'Criar nova senha',

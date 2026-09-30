@@ -3,6 +3,8 @@
 export const MAX_TENTATIVAS = 5;
 export const MINUTOS_BLOQUEIO = 15;
 export const MINUTOS_VALIDADE_LINK = 60;
+/** Link enviado ao usuário recém-cadastrado para criar a primeira senha. */
+export const MINUTOS_VALIDADE_CONVITE = 24 * 60;
 
 /** RN09: mínimo de 8 caracteres, com letras e números. */
 export function senhaAtendeRegra(senha: string): boolean {
