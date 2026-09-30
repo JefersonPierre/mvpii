@@ -17,6 +17,12 @@ RUN npm run build
 
 FROM dunglas/frankenphp:1-php8.4
 RUN install-php-extensions pdo_pgsql intl gd zip opcache
+# A imagem dá ao binário a permissão de abrir portas baixas (setcap), que o Render não aceita
+# ("exec: frankenphp: Operation not permitted"). Copiar o arquivo remove essa permissão;
+# a porta usada (PORT, acima de 1024) não precisa dela.
+RUN cp /usr/local/bin/frankenphp /tmp/frankenphp \
+    && mv -f /tmp/frankenphp /usr/local/bin/frankenphp \
+    && chmod 755 /usr/local/bin/frankenphp
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY . .
