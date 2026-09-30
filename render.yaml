@@ -18,10 +18,10 @@ services:
         value: pt_BR
       - key: LAB_DEMONSTRACAO
         value: "true"
+      # SQLite dentro do contêiner: recriado com os dados de exemplo a cada início do serviço.
+      # Para dados permanentes, troque para pgsql e informe DB_URL (ex.: Neon), como explica o README.
       - key: DB_CONNECTION
-        value: pgsql
-      - key: DB_URL # endereço de conexão do Neon (postgresql://...?sslmode=require)
-        sync: false
+        value: sqlite
       - key: ADMIN_EMAIL # usuário que o professor vai usar
         sync: false
       - key: ADMIN_SENHA # mínimo de 8 caracteres, com letras e números (RN09)

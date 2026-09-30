@@ -9,6 +9,11 @@ case "$APP_KEY" in
 esac
 export APP_URL="${APP_URL:-$RENDER_EXTERNAL_URL}"
 
+# SQLite: o arquivo do banco fica no disco do contêiner, que o plano gratuito não guarda entre reinícios.
+if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
+    touch database/database.sqlite
+fi
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
