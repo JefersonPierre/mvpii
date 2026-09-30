@@ -87,10 +87,10 @@ No servidor, configure também:
 
 Para disponibilizar um link de validação sem custo, o sistema roda no [Render](https://render.com) (plano gratuito),
 a partir da imagem Docker deste repositório. Com `LAB_DEMONSTRACAO=true` os e-mails são simulados: vão para o log,
-os links de senha aparecem na tela e um aviso no topo das páginas informa isso.
+e os links de senha aparecem na tela.
 
 O banco é SQLite dentro do próprio serviço. O disco do plano gratuito não é permanente: a cada início do serviço o
-banco é recriado com o usuário de acesso e o catálogo de exemplo, e o que foi cadastrado antes se perde. Como o
+banco é recriado com o usuário de acesso, o catálogo de exemplo e um cliente com um orçamento em rascunho, e o que foi cadastrado antes se perde. Como o
 serviço "dorme" após 15 minutos sem acesso (e o primeiro acesso seguinte leva de 30 a 60 segundos), isso acontece
 a cada pausa no uso.
 
