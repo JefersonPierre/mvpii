@@ -20,7 +20,7 @@ return [
     ],
 
     // Publicação para demonstração (ex.: validação pelo professor): e-mails simulados, links de senha na tela,
-    // aviso no topo das telas e catálogo de exemplo carregado pelo seeder.
+    // catálogo, cliente e orçamento de exemplo carregados pelo seeder.
     'demonstracao' => (bool) env('LAB_DEMONSTRACAO', false),
 
     // UC03 3a: preenche o endereço pelo CEP usando o ViaCEP (serviço externo e opcional).
