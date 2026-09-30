@@ -14,7 +14,10 @@ class CadastroClientes
     public const CAMPOS_AUDITADOS = ['interessado', 'tipo_pessoa', 'nome', 'nome_fantasia', 'documento', 'cep',
         'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'observacoes', 'ativo'];
 
-    public function __construct(private readonly Auditoria $auditoria) {}
+    public function __construct(
+        private readonly Auditoria $auditoria,
+        private readonly CadastroPontos $pontos,
+    ) {}
 
     /**
      * @param  array<string, mixed>  $dados  dados validados pelo ClienteRequest
@@ -42,7 +45,10 @@ class CadastroClientes
         });
     }
 
-    /** RN04 (inativar) e reativar. Os pontos de coleta serão inativados junto quando o MOD03 existir. */
+    /**
+     * RN04: inativar o cliente inativa também os seus pontos de coleta. Ao reativar, os pontos continuam
+     * inativos e podem ser reativados um a um (nem todo ponto antigo volta a ser usado).
+     */
     public function alterarSituacao(Cliente $cliente, bool $ativo): void
     {
         if ($cliente->ativo === $ativo) {
@@ -55,6 +61,10 @@ class CadastroClientes
                 self::ENTIDADE, $cliente->id, $ativo ? Auditoria::REATIVACAO : Auditoria::INATIVACAO,
                 $antes, $cliente->only(self::CAMPOS_AUDITADOS), self::CAMPOS_AUDITADOS,
             );
+            if (! $ativo) {
+                $cliente->pontosColeta()->where('ativo', true)->get()
+                    ->each(fn ($ponto) => $this->pontos->alterarSituacao($ponto, false));
+            }
         });
     }
 

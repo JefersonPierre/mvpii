@@ -6,7 +6,9 @@ use App\Http\Requests\ClienteRequest;
 use App\Models\Cliente;
 use App\Models\RegistroAuditoria;
 use App\Services\CadastroClientes;
+use App\Services\CadastroPontos;
 use App\Support\Documento;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -73,15 +75,31 @@ class ClienteController extends Controller
         $aba = in_array($request->query('aba'), ['dados', 'contatos', 'pontos', 'orcamentos', 'historico'], true)
             ? $request->query('aba') : 'dados';
 
-        $cliente->load('contatos');
-        $historico = $aba === 'historico'
-            ? RegistroAuditoria::with('responsavel')
-                ->where(['entidade' => CadastroClientes::ENTIDADE, 'registro_id' => $cliente->id])
-                ->orderByDesc('data_hora')->orderByDesc('id')
-                ->paginate(30)->withQueryString()
-            : null;
+        $cliente->load(['contatos', 'pontosColeta.tipoAmostra']);
+        $historico = $aba === 'historico' ? $this->historico($cliente) : null;
 
         return view('clientes.show', compact('cliente', 'aba', 'historico'));
+    }
+
+    /** RF24: histórico do cliente e dos seus pontos de coleta, do mais recente para o mais antigo. */
+    private function historico(Cliente $cliente): LengthAwarePaginator
+    {
+        $pontos = $cliente->pontosColeta->pluck('identificacao', 'id');
+
+        $registros = RegistroAuditoria::with('responsavel')
+            ->where(fn ($q) => $q->where(['entidade' => CadastroClientes::ENTIDADE, 'registro_id' => $cliente->id]))
+            ->orWhere(fn ($q) => $q->where('entidade', CadastroPontos::ENTIDADE)->whereIn('registro_id', $pontos->keys()))
+            ->orderByDesc('data_hora')->orderByDesc('id')
+            ->paginate(30)->withQueryString();
+
+        // Nas linhas de ponto de coleta, o campo mostra também de qual ponto se trata.
+        $registros->getCollection()->each(function (RegistroAuditoria $r) use ($pontos) {
+            if ($r->entidade === CadastroPontos::ENTIDADE) {
+                $r->setAttribute('prefixo_campo', 'Ponto '.$pontos[$r->registro_id]);
+            }
+        });
+
+        return $registros;
     }
 
     public function edit(Cliente $cliente): View

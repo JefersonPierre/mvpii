@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TemEndereco;
 use App\Support\Documento;
 use Database\Factories\ClienteFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Cliente extends Model
 {
     /** @use HasFactory<ClienteFactory> */
-    use HasFactory;
+    use HasFactory, TemEndereco;
 
     const CREATED_AT = 'criado_em';
 
@@ -52,18 +53,13 @@ class Cliente extends Model
         return $this->hasOne(Contato::class)->where('principal', true);
     }
 
+    public function pontosColeta(): HasMany
+    {
+        return $this->hasMany(PontoColeta::class)->orderByDesc('ativo')->orderBy('identificacao');
+    }
+
     public function documentoFormatado(): string
     {
         return $this->documento ? Documento::formatar($this->documento) : '';
-    }
-
-    /** Ex.: "Rua A, 10, apto 2 – Centro, Campinas/SP – CEP 13000-000". Vazio se não houver endereço. */
-    public function enderecoCompleto(): string
-    {
-        $linha = collect([$this->logradouro, $this->numero, $this->complemento])->filter()->implode(', ');
-        $local = collect([$this->bairro, collect([$this->cidade, $this->uf])->filter()->implode('/')])->filter()->implode(', ');
-        $cep = $this->cep ? 'CEP '.Documento::formatarCep($this->cep) : '';
-
-        return collect([$linha, $local, $cep])->filter()->implode(' – ');
     }
 }

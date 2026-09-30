@@ -3,7 +3,7 @@
     $abas = [
         'dados' => 'Dados',
         'contatos' => 'Contatos ('.$cliente->contatos->count().')',
-        'pontos' => 'Pontos de coleta',
+        'pontos' => 'Pontos de coleta ('.$cliente->pontosColeta->where('ativo', true)->count().')',
         'orcamentos' => 'Orçamentos',
         'historico' => 'Histórico',
     ];
@@ -12,6 +12,9 @@
         'nome_fantasia' => 'Nome fantasia', 'documento' => 'CPF/CNPJ', 'cep' => 'CEP', 'logradouro' => 'Logradouro',
         'numero' => 'Número', 'complemento' => 'Complemento', 'bairro' => 'Bairro', 'cidade' => 'Cidade', 'uf' => 'UF',
         'observacoes' => 'Observações', 'ativo' => 'Situação',
+        // Campos do ponto de coleta
+        'identificacao' => 'Identificação', 'tipo_amostra' => 'Tipo de amostra', 'referencia' => 'Referência',
+        'latitude' => 'Latitude', 'longitude' => 'Longitude',
     ];
 @endphp
 
@@ -105,7 +108,53 @@
                 @break
 
             @case('pontos')
-                <div class="alerta alerta-info">Os pontos de coleta serão cadastrados aqui no MOD03 (próxima etapa).</div>
+                {{-- RF11: pontos de coleta do cliente, cada um com o tipo de amostra padrão (RN03) --}}
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <p class="text-sm text-slate-500">Cada ponto tem um tipo de amostra padrão.</p>
+                    @if ($cliente->ativo)
+                        <a href="{{ route('pontos.create', $cliente) }}" class="botao botao-primario">Novo ponto</a>
+                    @endif
+                </div>
+                @if ($cliente->pontosColeta->isEmpty())
+                    <p class="text-slate-500">Nenhum ponto de coleta cadastrado.</p>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="tabela min-w-[760px]">
+                            <thead><tr><th>Ponto de coleta</th><th>Tipo de amostra</th><th>Endereço e referência</th><th>Situação</th><th><span class="sr-only">Ações</span></th></tr></thead>
+                            <tbody>
+                                @foreach ($cliente->pontosColeta as $ponto)
+                                    <tr>
+                                        <td class="font-medium">{{ $ponto->identificacao }}</td>
+                                        <td>{{ $ponto->tipoAmostra->nome }}</td>
+                                        <td>
+                                            {{ $ponto->enderecoCompleto() }}
+                                            @if ($ponto->referencia)<div class="text-xs text-slate-500">{{ $ponto->referencia }}</div>@endif
+                                            @if ($ponto->linkMapa())
+                                                <a href="{{ $ponto->linkMapa() }}" target="_blank" rel="noopener" class="text-xs text-teal-700 hover:underline">Ver no mapa</a>
+                                            @endif
+                                        </td>
+                                        <td><x-selo-situacao :ativo="$ponto->ativo" /></td>
+                                        <td>
+                                            <div class="flex justify-end gap-2">
+                                                <a href="{{ route('pontos.edit', $ponto) }}" class="botao botao-pequeno botao-secundario">Editar</a>
+                                                <form method="POST" action="{{ route('pontos.situacao', $ponto) }}">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="ativo" value="{{ $ponto->ativo ? 0 : 1 }}">
+                                                    @if ($ponto->ativo)
+                                                        <button type="submit" class="botao botao-pequeno botao-perigo">Inativar</button>
+                                                    @elseif ($cliente->ativo)
+                                                        <button type="submit" class="botao botao-pequeno bg-teal-50 text-teal-700 hover:bg-teal-100">Reativar</button>
+                                                    @endif
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
                 @break
 
             @case('orcamentos')

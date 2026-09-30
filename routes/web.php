@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\NovaSenhaController;
 use App\Http\Controllers\Auth\RecuperarSenhaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\PontoColetaController;
+use App\Http\Controllers\TipoAmostraController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Middleware\UsuarioAtivo;
 use Illuminate\Support\Facades\Route;
@@ -35,8 +37,23 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
     Route::patch('/clientes/{cliente}/situacao', [ClienteController::class, 'situacao'])->name('clientes.situacao');
     Route::resource('clientes', ClienteController::class)->except('destroy');
 
+    // MOD03 – Pontos de coleta (RF09–RF11): cadastrados a partir da ficha do cliente
+    Route::get('/clientes/{cliente}/pontos/create', [PontoColetaController::class, 'create'])->name('pontos.create');
+    Route::post('/clientes/{cliente}/pontos', [PontoColetaController::class, 'store'])->name('pontos.store');
+    Route::get('/pontos/{ponto}/edit', [PontoColetaController::class, 'edit'])->name('pontos.edit');
+    Route::put('/pontos/{ponto}', [PontoColetaController::class, 'update'])->name('pontos.update');
+    Route::patch('/pontos/{ponto}/situacao', [PontoColetaController::class, 'situacao'])->name('pontos.situacao');
+
+    // MOD04 – Catálogo técnico
+    Route::view('/catalogo', 'catalogo.index')->name('catalogo');
+    Route::prefix('catalogo')->name('catalogo.')->group(function () {
+        Route::get('/tipos-amostra/{tipo}/historico', [TipoAmostraController::class, 'historico'])->name('tipos-amostra.historico');
+        Route::patch('/tipos-amostra/{tipo}/situacao', [TipoAmostraController::class, 'situacao'])->name('tipos-amostra.situacao');
+        Route::resource('tipos-amostra', TipoAmostraController::class)->except(['show', 'destroy'])
+            ->parameters(['tipos-amostra' => 'tipo']);
+    });
+
     // Próximos módulos do Entregável 1
     Route::view('/orcamentos', 'em-construcao', ['titulo' => 'Orçamentos'])->name('orcamentos');
-    Route::view('/catalogo', 'em-construcao', ['titulo' => 'Catálogo técnico'])->name('catalogo');
     Route::view('/configuracoes', 'em-construcao', ['titulo' => 'Configurações'])->name('configuracoes');
 });

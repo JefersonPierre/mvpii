@@ -50,7 +50,10 @@
                         <td class="whitespace-nowrap">{{ $r->data_hora->format('d/m/Y H:i:s') }}</td>
                         <td>{{ $r->responsavel?->nome ?? '—' }}</td>
                         <td><span class="selo {{ $acoes[$r->acao][1] ?? '' }}">{{ $acoes[$r->acao][0] ?? $r->acao }}</span></td>
-                        <td>{{ $campos[$r->campo] ?? $r->campo ?? '—' }}</td>
+                        <td>
+                            @if ($r->prefixo_campo)<span class="text-slate-500">{{ $r->prefixo_campo }} –</span>@endif
+                            {{ $campos[$r->campo] ?? $r->campo ?? '—' }}
+                        </td>
                         <td>{{ $valor($r->campo, $r->valor_anterior) }}</td>
                         <td>{{ $valor($r->campo, $r->valor_novo) }}</td>
                     </tr>
