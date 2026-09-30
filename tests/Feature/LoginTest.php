@@ -11,7 +11,7 @@ class LoginTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_entra_com_email_e_senha_corretos(): void
+    public function test_ct01_entra_com_email_e_senha_corretos(): void
     {
         $usuario = Usuario::factory()->create(['email' => 'gerente@laboratorio.local']);
 
@@ -35,7 +35,7 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_bloqueia_apos_cinco_tentativas_mesmo_com_a_senha_certa(): void
+    public function test_ct02_bloqueia_apos_cinco_tentativas_mesmo_com_a_senha_certa(): void
     {
         $usuario = Usuario::factory()->create();
 

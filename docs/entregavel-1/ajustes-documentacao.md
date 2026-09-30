@@ -1,8 +1,10 @@
 # Ajustes na documentação técnica do Entregável 1
 
-A documentação (`Documentacao_Tecnica_E1_Cadastros_Orcamentos_v0.6.docx`) foi escrita para a stack inicial
-(NestJS + React + Docker). O projeto passou a usar **Laravel**. Os requisitos funcionais, as regras de negócio, os
-casos de uso e os protótipos continuam valendo; mudam apenas os trechos técnicos abaixo.
+A versão 0.6 da documentação foi escrita para a stack inicial (NestJS + React + Docker). O projeto passou a usar
+**Laravel**, e os ajustes abaixo **já foram aplicados na versão 0.7**
+(`Documentacao_Tecnica_E1_Cadastros_Orcamentos_v0.7.docx`), incluindo as figuras 1 (diagrama de contexto) e 9.1 a
+9.3 (diagramas de sequência), redesenhadas com os novos participantes. Os requisitos funcionais, as regras de negócio,
+os casos de uso e os protótipos não mudaram. Este arquivo fica como registro do que mudou e por quê.
 
 ## 1. Seção 3 – Ambiente de desenvolvimento e execução
 
@@ -51,8 +53,8 @@ O participante **"API"** passa a ser **"Controlador (Laravel)"**, e as chamadas 
 
 | Caso | Requisito | Teste automatizado |
 | --- | --- | --- |
-| CT01 | RF01 | `LoginTest::test_entra_com_email_e_senha_corretos` |
-| CT02 | RF01 | `LoginTest::test_bloqueia_apos_cinco_tentativas_mesmo_com_a_senha_certa` |
+| CT01 | RF01 | `LoginTest::test_ct01_entra_com_email_e_senha_corretos` |
+| CT02 | RF01 | `LoginTest::test_ct02_bloqueia_apos_cinco_tentativas_mesmo_com_a_senha_certa` |
 | CT03 | RF04 | `ClientesTest::test_ct03_cadastra_pessoa_juridica_e_exibe_a_ficha` |
 | CT04 | RF04 | `ClientesTest::test_ct04_cpf_invalido_nao_grava` e `test_ct04_documento_duplicado_oferece_abrir_o_existente` |
 | CT05 | RF05 | `ClientesTest::test_ct05_cadastro_rapido_de_interessado_sem_documento` |
