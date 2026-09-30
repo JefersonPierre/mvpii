@@ -26,8 +26,7 @@ jobs:
       - run: npm run build
       - run: php artisan test --log-junit junit.xml
       - if: failure()
-        run: php -r 'foreach (simplexml_load_file("junit.xml")->xpath("//testcase[failure or error]") as $t) { $m = (string) ($t->failure ?: $t->error); echo "::error title=".$t["class"]."::".str_replace(["%", "", "
-"], ["%25", "%0D", "%0A"], substr($m, 0, 1500)).PHP_EOL; }'
+        run: php -r 'foreach (simplexml_load_file("junit.xml")->xpath("//testcase[failure or error]") as $t) { echo "::error title=", $t["class"], "::", rawurlencode(substr((string) ($t->failure ?: $t->error), 0, 1500)), PHP_EOL; }'
 
   # Mesmos testes no PostgreSQL, o banco usado na publicação.
   postgres:
