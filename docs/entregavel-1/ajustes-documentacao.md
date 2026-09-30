@@ -77,3 +77,13 @@ Para rodar todos: `php artisan test` (99 testes).
   - "Duplicar" usa os preços atuais do catálogo; "Nova revisão" mantém os preços do orçamento original;
   - a validade do orçamento conta a partir do envio;
   - o desconto é um percentual sobre itens + taxa de coleta (conforme o CT08).
+
+## 7. Versão 0.8
+
+A versão 0.8 (`Documentacao_Tecnica_E1_Cadastros_Orcamentos_v0.8.docx`) substitui a 0.7 e acrescenta:
+
+- as decisões da seção 6 como regras de negócio: RN13 (desconto percentual sobre itens + taxa), RN20 (reativação
+  de cliente), RN21 (duplicar × nova revisão) e RN22 (validade a partir do envio);
+- no roteiro de aceite (11.3), a conferência dos limites oficiais e a troca dos preços fictícios;
+- as seções 12 a 15, feitas a partir do código implementado: diagrama de componentes, diagrama de classes,
+  diagrama entidade-relacionamento e dicionário de dados.
