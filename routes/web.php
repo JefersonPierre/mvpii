@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\RecuperarSenhaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracaoController;
 use App\Http\Controllers\EnvioOrcamentoController;
+use App\Http\Controllers\InicioController;
 use App\Http\Controllers\LegislacaoController;
 use App\Http\Controllers\LimiteController;
 use App\Http\Controllers\OrcamentoController;
@@ -33,7 +34,7 @@ Route::post('/nova-senha', [NovaSenhaController::class, 'store']);
 Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
     Route::post('/sair', [LoginController::class, 'destroy'])->name('sair');
 
-    Route::view('/', 'inicio')->name('inicio');
+    Route::get('/', InicioController::class)->name('inicio');
 
     // MOD01 – Usuários (RF03)
     Route::get('/usuarios/{usuario}/historico', [UsuarioController::class, 'historico'])->name('usuarios.historico');

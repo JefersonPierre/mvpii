@@ -36,6 +36,13 @@ No ambiente local os e-mails **não saem de verdade** (`MAIL_MAILER=log`): o con
 
 Para recomeçar o banco do zero: `php artisan migrate:fresh --seed`.
 
+No ambiente local, o `db:seed` também cadastra um **catálogo de exemplo** (parâmetros, pacotes e limites da Portaria
+GM/MS nº 888/2021 e da Resolução CONAMA nº 430/2011). Os preços são fictícios e os limites devem ser conferidos com o
+texto oficial antes do uso real.
+
+Cópia de segurança do banco local (RNF06): `php artisan banco:copiar` cria uma cópia em `storage/app/private/copias`
+(mantidas por 30 dias) e `php artisan banco:restaurar` lista as cópias e restaura a escolhida.
+
 ## Testes e verificação
 
 ```bash
@@ -60,7 +67,7 @@ database/migrations/   Esquema do banco
 resources/views/       Telas (Blade)
 routes/web.php         Rotas do sistema
 tests/                 Testes (Feature e Unit)
-docs/                  Documentação técnica
+docs/                  Documentação técnica (e ajustes-documentacao.md: o que mudou com o Laravel)
 ```
 
 ## Produção (final do projeto)
@@ -85,4 +92,4 @@ No servidor, configure também:
 - [x] MOD03 – Pontos de coleta (RF09–RF11)
 - [x] MOD04 – Catálogo técnico (RF12–RF16)
 - [x] MOD05 – Orçamentos (RF17–RF22)
-- [ ] MOD06 – Consulta e histórico (RF23–RF24)
+- [x] MOD06 – Consulta e histórico (RF23–RF24)

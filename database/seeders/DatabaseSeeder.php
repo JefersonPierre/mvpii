@@ -21,5 +21,10 @@ class DatabaseSeeder extends Seeder
         // RF12: o laboratório analisa água potável e efluentes.
         TipoAmostra::firstOrCreate(['nome' => 'Água potável'], ['descricao' => 'Água para consumo humano']);
         TipoAmostra::firstOrCreate(['nome' => 'Efluente'], ['descricao' => 'Efluentes domésticos e industriais']);
+
+        // Catálogo de exemplo (preços fictícios): só no ambiente local. Em produção, o laboratório cadastra o seu.
+        if (app()->environment('local')) {
+            $this->call(CatalogoExemploSeeder::class);
+        }
     }
 }

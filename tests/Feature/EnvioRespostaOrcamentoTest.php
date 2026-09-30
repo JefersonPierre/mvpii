@@ -111,6 +111,16 @@ class EnvioRespostaOrcamentoTest extends TestCase
         $this->assertNull($orcamento->fresh()->valido_ate);
     }
 
+    public function test_tela_inicial_mostra_orcamentos_aguardando_resposta_e_rascunhos(): void
+    {
+        $enviado = $this->enviado();
+        $rascunho = $this->rascunho();
+
+        $this->get(route('inicio'))->assertOk()
+            ->assertSee('Aguardando resposta do cliente (1)')->assertSee($enviado->numeroComRevisao())->assertSee('vence em 30 dias')
+            ->assertSee('Rascunhos (1)')->assertSee($rascunho->numeroComRevisao());
+    }
+
     public function test_aprova_orcamento_de_cliente_completo(): void
     {
         $orcamento = $this->enviado();
