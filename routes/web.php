@@ -1,0 +1,94 @@
+<?php
+
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\NovaSenhaController;
+use App\Http\Controllers\Auth\RecuperarSenhaController;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ConfiguracaoController;
+use App\Http\Controllers\EnvioOrcamentoController;
+use App\Http\Controllers\InicioController;
+use App\Http\Controllers\LegislacaoController;
+use App\Http\Controllers\LimiteController;
+use App\Http\Controllers\OrcamentoController;
+use App\Http\Controllers\PacoteController;
+use App\Http\Controllers\ParametroController;
+use App\Http\Controllers\PontoColetaController;
+use App\Http\Controllers\RespostaOrcamentoController;
+use App\Http\Controllers\TipoAmostraController;
+use App\Http\Controllers\UsuarioController;
+use App\Http\Middleware\UsuarioAtivo;
+use Illuminate\Support\Facades\Route;
+
+// MOD01 – Acesso (RF01, RF02)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:20,1');
+    Route::get('/recuperar-senha', [RecuperarSenhaController::class, 'create'])->name('recuperar-senha');
+    Route::post('/recuperar-senha', [RecuperarSenhaController::class, 'store'])->middleware('throttle:5,1');
+});
+
+// O link do e-mail funciona mesmo com alguém conectado no navegador.
+Route::get('/nova-senha', [NovaSenhaController::class, 'create'])->name('nova-senha');
+Route::post('/nova-senha', [NovaSenhaController::class, 'store']);
+
+Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
+    Route::post('/sair', [LoginController::class, 'destroy'])->name('sair');
+
+    Route::get('/', InicioController::class)->name('inicio');
+
+    // MOD01 – Usuários (RF03)
+    Route::get('/usuarios/{usuario}/historico', [UsuarioController::class, 'historico'])->name('usuarios.historico');
+    Route::patch('/usuarios/{usuario}/situacao', [UsuarioController::class, 'situacao'])->name('usuarios.situacao');
+    Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy'])
+        ->parameters(['usuarios' => 'usuario']);
+
+    // MOD02 – Clientes (RF04–RF08) e ficha do cliente (RF23, RF24)
+    Route::patch('/clientes/{cliente}/situacao', [ClienteController::class, 'situacao'])->name('clientes.situacao');
+    Route::resource('clientes', ClienteController::class)->except('destroy');
+
+    // MOD03 – Pontos de coleta (RF09–RF11): cadastrados a partir da ficha do cliente
+    Route::get('/clientes/{cliente}/pontos/create', [PontoColetaController::class, 'create'])->name('pontos.create');
+    Route::post('/clientes/{cliente}/pontos', [PontoColetaController::class, 'store'])->name('pontos.store');
+    Route::get('/pontos/{ponto}/edit', [PontoColetaController::class, 'edit'])->name('pontos.edit');
+    Route::put('/pontos/{ponto}', [PontoColetaController::class, 'update'])->name('pontos.update');
+    Route::patch('/pontos/{ponto}/situacao', [PontoColetaController::class, 'situacao'])->name('pontos.situacao');
+
+    // MOD04 – Catálogo técnico
+    Route::view('/catalogo', 'catalogo.index')->name('catalogo');
+    Route::prefix('catalogo')->name('catalogo.')->group(function () {
+        Route::get('/tipos-amostra/{tipo}/historico', [TipoAmostraController::class, 'historico'])->name('tipos-amostra.historico');
+        Route::patch('/tipos-amostra/{tipo}/situacao', [TipoAmostraController::class, 'situacao'])->name('tipos-amostra.situacao');
+        Route::resource('tipos-amostra', TipoAmostraController::class)->except(['show', 'destroy'])
+            ->parameters(['tipos-amostra' => 'tipo']);
+
+        Route::get('/parametros/{parametro}/historico', [ParametroController::class, 'historico'])->name('parametros.historico');
+        Route::patch('/parametros/{parametro}/situacao', [ParametroController::class, 'situacao'])->name('parametros.situacao');
+        Route::resource('parametros', ParametroController::class)->except(['show', 'destroy']);
+
+        Route::get('/pacotes/{pacote}/historico', [PacoteController::class, 'historico'])->name('pacotes.historico');
+        Route::patch('/pacotes/{pacote}/situacao', [PacoteController::class, 'situacao'])->name('pacotes.situacao');
+        Route::resource('pacotes', PacoteController::class)->except(['show', 'destroy']);
+
+        Route::get('/legislacoes/{legislacao}/historico', [LegislacaoController::class, 'historico'])->name('legislacoes.historico');
+        Route::resource('legislacoes', LegislacaoController::class)->except('destroy')
+            ->parameters(['legislacoes' => 'legislacao']);
+        Route::get('/legislacoes/{legislacao}/limites/create', [LimiteController::class, 'create'])->name('limites.create');
+        Route::post('/legislacoes/{legislacao}/limites', [LimiteController::class, 'store'])->name('limites.store');
+        Route::get('/limites/{limite}/edit', [LimiteController::class, 'edit'])->name('limites.edit');
+        Route::put('/limites/{limite}', [LimiteController::class, 'update'])->name('limites.update');
+        Route::delete('/limites/{limite}', [LimiteController::class, 'destroy'])->name('limites.destroy');
+    });
+
+    // MOD05 – Orçamentos (RF17–RF21)
+    Route::get('/orcamentos/buscar-clientes', [OrcamentoController::class, 'buscarClientes'])->name('orcamentos.buscar-clientes');
+    Route::post('/orcamentos/{orcamento}/duplicar', [OrcamentoController::class, 'duplicar'])->name('orcamentos.duplicar');
+    Route::post('/orcamentos/{orcamento}/revisao', [OrcamentoController::class, 'novaRevisao'])->name('orcamentos.revisao');
+    Route::get('/orcamentos/{orcamento}/pdf', [EnvioOrcamentoController::class, 'pdf'])->name('orcamentos.pdf');
+    Route::get('/orcamentos/{orcamento}/envio', [EnvioOrcamentoController::class, 'create'])->name('orcamentos.envio');
+    Route::post('/orcamentos/{orcamento}/envio', [EnvioOrcamentoController::class, 'store']);
+    Route::post('/orcamentos/{orcamento}/resposta', [RespostaOrcamentoController::class, 'store'])->name('orcamentos.resposta');
+    Route::resource('orcamentos', OrcamentoController::class)->except('destroy');
+    // MOD05 – Configurações comerciais do orçamento (RF22)
+    Route::get('/configuracoes', [ConfiguracaoController::class, 'edit'])->name('configuracoes');
+    Route::put('/configuracoes', [ConfiguracaoController::class, 'update']);
+});
