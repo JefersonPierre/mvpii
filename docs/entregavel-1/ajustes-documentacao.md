@@ -87,3 +87,19 @@ A versão 0.8 (`Documentacao_Tecnica_E1_Cadastros_Orcamentos_v0.8.docx`) substit
 - no roteiro de aceite (11.3), a conferência dos limites oficiais e a troca dos preços fictícios;
 - as seções 12 a 15, feitas a partir do código implementado: diagrama de componentes, diagrama de classes,
   diagrama entidade-relacionamento e dicionário de dados.
+
+## 8. Versão 0.9
+
+A versão 0.9 (`Documentacao_Tecnica_E1_Cadastros_Orcamentos_v0.9.docx`) parte da última versão editada pelo autor
+(0.6, com os ajustes de texto dele) e substitui a 0.8. Mantém as remoções feitas pelo autor (RNF02, RNF05, RNF11 e as
+figuras dos casos de uso) e acrescenta:
+
+- Figura 1 atualizada e o serviço de consulta de CEP (ViaCEP, opcional) de volta às entidades externas e aos fluxos;
+- seção 3: ambiente de desenvolvimento e execução (local e produção) e a tabela de tecnologias preenchida;
+- RNF06 com os comandos de cópia e restauração do banco, RNF07 sem resolução mínima e RNF10 com o README;
+- RN01 completa (dígitos verificadores e documento único), RN13 com o desconto percentual e RN20 a RN22, também
+  citadas na tabela de processos e nos casos de uso UC03, UC08 e UC10;
+- seção 9: os três diagramas de sequência (UC03, UC08 e UC09) com participantes, passos e fluxo alternativo;
+- seção 11: estratégia, casos de teste CT01 a CT12 e roteiro do teste de aceitação;
+- seções 12 a 15 (componentes, classes, entidade-relacionamento e dicionário de dados) e o sumário atualizado;
+- remoção de uma página em branco antes da seção 8.
