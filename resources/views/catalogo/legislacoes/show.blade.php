@@ -45,7 +45,7 @@
             @endif
         </div>
         @unless ($editavel)
-            <div class="alerta border-slate-200 bg-slate-50 text-slate-700">Legislação encerrada: os limites ficam apenas para consulta (RN07).</div>
+            <div class="alerta border-slate-200 bg-slate-50 text-slate-700">Legislação encerrada: os limites ficam apenas para consulta.</div>
         @endunless
 
         @if ($limites->isEmpty())

@@ -5,7 +5,7 @@
     <div>
         <a href="{{ route('orcamentos.show', $orcamento) }}" class="text-sm text-teal-700 hover:underline">← {{ $orcamento->numeroComRevisao() }}</a>
         <h1 class="text-2xl font-semibold">Enviar orçamento {{ $orcamento->numero() }}</h1>
-        <p class="text-sm text-slate-500">Confira o PDF, o destinatário e a mensagem. Depois de enviado, o orçamento só muda por nova revisão (RN16).</p>
+        <p class="text-sm text-slate-500">Confira o PDF, o destinatário e a mensagem. Depois de enviado, o orçamento só muda por nova revisão.</p>
     </div>
 
     <div class="grid items-start gap-4 xl:grid-cols-[1fr_24rem]">
