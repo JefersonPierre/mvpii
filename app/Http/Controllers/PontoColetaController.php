@@ -63,7 +63,7 @@ class PontoColetaController extends Controller
         // Tipos ativos; na edição, também o tipo atual do ponto, mesmo que tenha sido inativado.
         $tipos = TipoAmostra::query()
             ->where(fn ($q) => $q->where('ativo', true)->orWhere('id', $ponto->tipo_amostra_id))
-            ->get()->ordenarPorNome();
+            ->orderByNome()->get();
 
         return view('pontos.form', compact('cliente', 'ponto', 'tipos'));
     }

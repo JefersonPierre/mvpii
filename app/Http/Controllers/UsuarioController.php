@@ -36,7 +36,7 @@ class UsuarioController extends Controller
                 $termo = '%'.mb_strtolower($busca).'%';
                 $q->where(fn ($q) => $q->whereRaw('LOWER(nome) LIKE ?', [$termo])->orWhere('email', 'like', $termo));
             })
-            ->orderBy('nome')
+            ->orderByNome()
             ->paginate(20)
             ->withQueryString();
 

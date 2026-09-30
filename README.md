@@ -51,9 +51,11 @@ app/
   Http/Controllers/    Telas: login, recuperação de senha, usuários, clientes, pontos de coleta, catálogo
   Http/Middleware/     UsuarioAtivo (RN10)
   Http/Requests/       Validação dos formulários
-  Models/              Usuario, TokenSenha, RegistroAuditoria, Cliente, Contato, PontoColeta, TipoAmostra
-  Services/            Auditoria (RN08), LinksSenha (RF02), CadastroClientes (UC03), CadastroPontos (UC04)
-  Support/             RegrasAcesso (RN09), Documento (CPF/CNPJ – RN01)
+  Models/              Usuario, Cliente, Contato, PontoColeta, TipoAmostra, Parametro, Pacote, Legislacao, Limite…
+  Services/            Auditoria (RN08), CadastroComHistorico, CadastroClientes (UC03), CadastroPontos (UC04),
+                       CadastroLegislacoes (UC06), LinksSenha (RF02)
+  Rules/               NomeUnico (RN05), RegistroAtivo (RN04)
+  Support/             RegrasAcesso (RN09), Documento (CPF/CNPJ – RN01), Numero (formato brasileiro)
 database/migrations/   Esquema do banco
 resources/views/       Telas (Blade)
 routes/web.php         Rotas do sistema
@@ -74,6 +76,6 @@ com os dados do servidor de e-mail real, HTTPS e cópia de segurança do banco. 
 - [x] MOD01 – Cadastro de usuários (RF03)
 - [x] MOD02 – Clientes (RF04–RF08)
 - [x] MOD03 – Pontos de coleta (RF09–RF11)
-- [ ] MOD04 – Catálogo técnico (RF12–RF16) — tipos de amostra (RF12) prontos
+- [x] MOD04 – Catálogo técnico (RF12–RF16)
 - [ ] MOD05 – Orçamentos (RF17–RF22)
 - [ ] MOD06 – Consulta e histórico (RF23–RF24)

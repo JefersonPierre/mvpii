@@ -160,6 +160,16 @@ class ClientesTest extends TestCase
             ->assertSee('Inativação')->assertSee('Reativação')->assertSee('Recepção');
     }
 
+    public function test_lista_em_ordem_alfabetica_do_portugues(): void
+    {
+        Cliente::factory()->create(['nome' => 'Zeta Indústria']);
+        Cliente::factory()->create(['nome' => 'ecoLab Serviços']);
+        Cliente::factory()->create(['nome' => 'Água Viva Condomínio']);
+        Cliente::factory()->create(['nome' => 'Bela Vista']);
+
+        $this->get('/clientes')->assertSeeInOrder(['Água Viva Condomínio', 'Bela Vista', 'ecoLab Serviços', 'Zeta Indústria']);
+    }
+
     public function test_rf08_pesquisa_por_nome_documento_cidade_e_situacao(): void
     {
         Cliente::factory()->create(['nome' => 'Condomínio Primavera', 'documento' => '11222333000181', 'cidade' => 'Campinas']);

@@ -42,7 +42,7 @@ class ClienteController extends Controller
                     }
                 });
             })
-            ->orderBy('nome')
+            ->orderByNome()
             ->paginate(20)
             ->withQueryString();
 

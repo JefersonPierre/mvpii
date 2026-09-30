@@ -2,9 +2,9 @@
 @php
     $secoes = [
         ['Tipos de amostra', 'Água potável, efluente e outros tipos analisados pelo laboratório.', 'RF12', route('catalogo.tipos-amostra.index')],
-        ['Parâmetros de análise', 'Unidade, método, limite de quantificação, categoria e preço.', 'RF13', null],
-        ['Pacotes de análise', 'Conjuntos de parâmetros por tipo de amostra, com preço.', 'RF14', null],
-        ['Legislações e limites', 'Legislações de referência, vigência e limites por parâmetro.', 'RF15, RF16', null],
+        ['Parâmetros de análise', 'Unidade, método, limite de quantificação, categoria e preço.', 'RF13', route('catalogo.parametros.index')],
+        ['Pacotes de análise', 'Conjuntos de parâmetros por tipo de amostra, com preço.', 'RF14', route('catalogo.pacotes.index')],
+        ['Legislações e limites', 'Legislações de referência, vigência e limites por parâmetro.', 'RF15, RF16', route('catalogo.legislacoes.index')],
     ];
 @endphp
 

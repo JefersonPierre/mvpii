@@ -43,6 +43,6 @@ class TipoAmostra extends Model
     /** @param  Builder<TipoAmostra>  $query */
     public function scopeAtivos(Builder $query): void
     {
-        $query->where('ativo', true)->orderBy('nome');
+        $query->where('ativo', true)->orderByNome();
     }
 }

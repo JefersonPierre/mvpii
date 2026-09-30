@@ -4,6 +4,10 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\NovaSenhaController;
 use App\Http\Controllers\Auth\RecuperarSenhaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\LegislacaoController;
+use App\Http\Controllers\LimiteController;
+use App\Http\Controllers\PacoteController;
+use App\Http\Controllers\ParametroController;
 use App\Http\Controllers\PontoColetaController;
 use App\Http\Controllers\TipoAmostraController;
 use App\Http\Controllers\UsuarioController;
@@ -51,6 +55,23 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
         Route::patch('/tipos-amostra/{tipo}/situacao', [TipoAmostraController::class, 'situacao'])->name('tipos-amostra.situacao');
         Route::resource('tipos-amostra', TipoAmostraController::class)->except(['show', 'destroy'])
             ->parameters(['tipos-amostra' => 'tipo']);
+
+        Route::get('/parametros/{parametro}/historico', [ParametroController::class, 'historico'])->name('parametros.historico');
+        Route::patch('/parametros/{parametro}/situacao', [ParametroController::class, 'situacao'])->name('parametros.situacao');
+        Route::resource('parametros', ParametroController::class)->except(['show', 'destroy']);
+
+        Route::get('/pacotes/{pacote}/historico', [PacoteController::class, 'historico'])->name('pacotes.historico');
+        Route::patch('/pacotes/{pacote}/situacao', [PacoteController::class, 'situacao'])->name('pacotes.situacao');
+        Route::resource('pacotes', PacoteController::class)->except(['show', 'destroy']);
+
+        Route::get('/legislacoes/{legislacao}/historico', [LegislacaoController::class, 'historico'])->name('legislacoes.historico');
+        Route::resource('legislacoes', LegislacaoController::class)->except('destroy')
+            ->parameters(['legislacoes' => 'legislacao']);
+        Route::get('/legislacoes/{legislacao}/limites/create', [LimiteController::class, 'create'])->name('limites.create');
+        Route::post('/legislacoes/{legislacao}/limites', [LimiteController::class, 'store'])->name('limites.store');
+        Route::get('/limites/{limite}/edit', [LimiteController::class, 'edit'])->name('limites.edit');
+        Route::put('/limites/{limite}', [LimiteController::class, 'update'])->name('limites.update');
+        Route::delete('/limites/{limite}', [LimiteController::class, 'destroy'])->name('limites.destroy');
     });
 
     // Próximos módulos do Entregável 1

@@ -1,10 +1,9 @@
 {{-- RF12 – Tipos de amostra --}}
 <x-layout titulo="Tipos de amostra">
+    <x-abas-catalogo />
+
     <div class="flex flex-wrap items-end justify-between gap-2">
-        <div>
-            <a href="{{ route('catalogo') }}" class="text-sm text-teal-700 hover:underline">← Catálogo técnico</a>
-            <h1 class="text-2xl font-semibold">Tipos de amostra</h1>
-        </div>
+        <h1 class="text-2xl font-semibold">Tipos de amostra</h1>
         <a href="{{ route('catalogo.tipos-amostra.create') }}" class="botao botao-primario">Novo tipo de amostra</a>
     </div>
 

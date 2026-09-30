@@ -45,7 +45,7 @@ class Cliente extends Model
 
     public function contatos(): HasMany
     {
-        return $this->hasMany(Contato::class)->orderByDesc('principal')->orderBy('nome');
+        return $this->hasMany(Contato::class)->orderByDesc('principal')->orderByNome();
     }
 
     public function contatoPrincipal(): HasOne
@@ -55,7 +55,7 @@ class Cliente extends Model
 
     public function pontosColeta(): HasMany
     {
-        return $this->hasMany(PontoColeta::class)->orderByDesc('ativo')->orderBy('identificacao');
+        return $this->hasMany(PontoColeta::class)->orderByDesc('ativo')->orderByNome('identificacao');
     }
 
     public function documentoFormatado(): string

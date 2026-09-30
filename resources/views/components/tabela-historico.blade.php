@@ -24,6 +24,10 @@
             'tipo_pessoa' => $v === 'F' ? 'Física' : 'Jurídica',
             'documento' => \App\Support\Documento::formatar($v),
             'cep' => \App\Support\Documento::formatarCep($v),
+            'categoria' => \App\Models\Parametro::CATEGORIAS[$v] ?? $v,
+            'preco' => \App\Support\Numero::moeda($v),
+            'limite_quantificacao', 'latitude', 'longitude' => \App\Support\Numero::decimal($v),
+            'inicio_vigencia', 'fim_vigencia' => \Illuminate\Support\Carbon::parse($v)->format('d/m/Y'),
             default => $v,
         };
     };
