@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\NovaSenhaController;
 use App\Http\Controllers\Auth\RecuperarSenhaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ConfiguracaoController;
 use App\Http\Controllers\LegislacaoController;
 use App\Http\Controllers\LimiteController;
 use App\Http\Controllers\PacoteController;
@@ -76,5 +77,7 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
 
     // Próximos módulos do Entregável 1
     Route::view('/orcamentos', 'em-construcao', ['titulo' => 'Orçamentos'])->name('orcamentos');
-    Route::view('/configuracoes', 'em-construcao', ['titulo' => 'Configurações'])->name('configuracoes');
+    // MOD05 – Configurações comerciais do orçamento (RF22)
+    Route::get('/configuracoes', [ConfiguracaoController::class, 'edit'])->name('configuracoes');
+    Route::put('/configuracoes', [ConfiguracaoController::class, 'update']);
 });
