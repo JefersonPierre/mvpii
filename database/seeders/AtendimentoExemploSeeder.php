@@ -7,6 +7,7 @@ use App\Models\Orcamento;
 use App\Models\Pacote;
 use App\Models\Usuario;
 use App\Services\CadastroOrcamentos;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
 
@@ -53,6 +54,8 @@ class AtendimentoExemploSeeder extends Seeder
             'uf' => 'SP',
         ]);
 
+        // O seeder libera todos os campos; o orçamento passa pelo mesmo cadastro das telas, que conta com o $fillable.
+        Model::reguard();
         // O orçamento registra quem o criou: usa o primeiro usuário (o administrador).
         Auth::setUser(Usuario::query()->orderBy('id')->firstOrFail());
         $orcamentos->salvarRascunho(new Orcamento, [
