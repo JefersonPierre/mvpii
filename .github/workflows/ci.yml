@@ -25,8 +25,9 @@ jobs:
       - run: vendor/bin/pint --test
       - run: npm run build
       - run: php artisan test --log-junit junit.xml
-      - if: failure()
-        run: php -r 'foreach (simplexml_load_file("junit.xml")->xpath("//testcase[failure or error]") as $t) { echo "::error title=", $t["class"], "::", rawurlencode(substr((string) ($t->failure ?: $t->error), 0, 1500)), PHP_EOL; }'
+      - name: Mostrar testes que falharam
+        if: failure()
+        run: php tests/anotar-falhas.php junit.xml
 
   # Mesmos testes no PostgreSQL, o banco usado na publicação.
   postgres:
