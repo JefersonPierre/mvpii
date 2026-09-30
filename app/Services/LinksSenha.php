@@ -34,11 +34,12 @@ class LinksSenha
 
     /**
      * No ambiente local os e-mails vão para o log (MAIL_MAILER=log); por isso o link também aparece na tela,
-     * para permitir testar o fluxo. Em produção devolve null e o link só chega por e-mail.
+     * para permitir testar o fluxo; o mesmo vale para a publicação de demonstração. Em produção devolve null e o link
+     * só chega por e-mail.
      */
     public static function exibirNaTela(?string $link): ?string
     {
-        return app()->isLocal() && config('mail.default') === 'log' ? $link : null;
+        return (app()->isLocal() || config('laboratorio.demonstracao')) && config('mail.default') === 'log' ? $link : null;
     }
 
     /** Devolve o token se ele existir, não tiver sido usado e estiver no prazo. */

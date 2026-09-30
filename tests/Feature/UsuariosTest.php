@@ -25,8 +25,9 @@ class UsuariosTest extends TestCase
 
     public function test_lista_com_busca_e_filtro_de_situacao(): void
     {
-        Usuario::factory()->create(['nome' => 'Maria Souza']);
-        Usuario::factory()->inativo()->create(['nome' => 'João Lima']);
+        Usuario::factory()->create(['nome' => 'Maria Souza', 'email' => 'maria@exemplo.com']);
+        // E-mail fixo: um e-mail aleatório com "mar" faria a busca encontrar o João.
+        Usuario::factory()->inativo()->create(['nome' => 'João Lima', 'email' => 'joao@exemplo.com']);
 
         $this->get('/usuarios')->assertOk()->assertSee('Maria Souza')->assertDontSee('João Lima');
         $this->get('/usuarios?situacao=inativos')->assertSee('João Lima')->assertDontSee('Maria Souza');

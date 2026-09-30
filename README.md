@@ -83,6 +83,30 @@ No servidor, configure também:
 - os dados do laboratório que saem no PDF do orçamento (`LABORATORIO_NOME`, `LABORATORIO_ENDERECO`, `LABORATORIO_TELEFONE`,
   `LABORATORIO_EMAIL` e `LABORATORIO_CNPJ`).
 
+## Publicação para demonstração (Render, gratuito)
+
+Para disponibilizar um link de validação sem custo, o sistema roda no [Render](https://render.com) (plano gratuito),
+a partir da imagem Docker deste repositório. Com `LAB_DEMONSTRACAO=true` os e-mails são simulados: vão para o log,
+os links de senha aparecem na tela e um aviso no topo das páginas informa isso.
+
+O banco é SQLite dentro do próprio serviço. O disco do plano gratuito não é permanente: a cada início do serviço o
+banco é recriado com o usuário de acesso e o catálogo de exemplo, e o que foi cadastrado antes se perde. Como o
+serviço "dorme" após 15 minutos sem acesso (e o primeiro acesso seguinte leva de 30 a 60 segundos), isso acontece
+a cada pausa no uso.
+
+1. No Render, entre com a conta do GitHub e escolha **New → Blueprint** e o repositório `mvpii`. O arquivo
+   `render.yaml` já descreve o serviço; o Render pede dois valores: `ADMIN_EMAIL` e `ADMIN_SENHA`, o usuário que
+   será entregue ao professor (senha com no mínimo 8 caracteres, letras e números).
+2. Aguarde o primeiro deploy (alguns minutos) e use o endereço `https://<nome>.onrender.com` mostrado no painel.
+3. A cada merge no `main` o Render publica a nova versão.
+
+Para manter os dados entre reinícios, basta um PostgreSQL externo (por exemplo, o plano gratuito do Neon): no painel
+do Render, troque `DB_CONNECTION` para `pgsql` e informe o endereço de conexão em `DB_URL`. A suíte de testes também
+roda no PostgreSQL no CI.
+
+Arquivos envolvidos: `Dockerfile`, `docker/iniciar.sh` (prepara o banco com `php artisan sistema:preparar` e sobe o
+servidor) e `render.yaml`.
+
 ## Andamento do Entregável 1
 
 - [x] Estrutura do projeto

@@ -21,7 +21,8 @@ class CopiaSegurancaTest extends TestCase
         $this->banco = storage_path('framework/testing/banco-teste.sqlite');
         File::ensureDirectoryExists(dirname($this->banco));
         File::put($this->banco, '');
-        config(['database.connections.sqlite.database' => $this->banco]);
+        // SQLite mesmo quando a suíte roda no PostgreSQL (CI).
+        config(['database.default' => 'sqlite', 'database.connections.sqlite.database' => $this->banco]);
         DB::purge('sqlite');
         $this->artisan('migrate', ['--force' => true]);
 

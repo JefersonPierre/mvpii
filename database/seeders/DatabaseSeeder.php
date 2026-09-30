@@ -22,8 +22,8 @@ class DatabaseSeeder extends Seeder
         TipoAmostra::firstOrCreate(['nome' => 'Água potável'], ['descricao' => 'Água para consumo humano']);
         TipoAmostra::firstOrCreate(['nome' => 'Efluente'], ['descricao' => 'Efluentes domésticos e industriais']);
 
-        // Catálogo de exemplo (preços fictícios): só no ambiente local. Em produção, o laboratório cadastra o seu.
-        if (app()->environment('local')) {
+        // Catálogo de exemplo (preços fictícios): no ambiente local e na demonstração. Em produção, o laboratório cadastra o seu.
+        if (app()->environment('local') || config('laboratorio.demonstracao')) {
             $this->call(CatalogoExemploSeeder::class);
         }
     }
