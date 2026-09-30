@@ -10,4 +10,7 @@ return [
         'senha' => env('ADMIN_SENHA', 'Admin12345'),
     ],
 
+    // UC03 3a: preenche o endereço pelo CEP usando o ViaCEP (serviço externo e opcional).
+    'consulta_cep' => (bool) env('CEP_CONSULTA', true),
+
 ];

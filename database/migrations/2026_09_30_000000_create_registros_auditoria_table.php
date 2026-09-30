@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('entidade', 50);
             $table->unsignedBigInteger('registro_id');
             $table->string('acao', 20); // INCLUSAO, ALTERACAO, INATIVACAO, REATIVACAO
-            $table->string('campo', 50)->nullable();
+            $table->string('campo', 120)->nullable();
             $table->text('valor_anterior')->nullable();
             $table->text('valor_novo')->nullable();
             $table->timestamp('data_hora')->useCurrent();

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\NovaSenhaController;
 use App\Http\Controllers\Auth\RecuperarSenhaController;
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Middleware\UsuarioAtivo;
 use Illuminate\Support\Facades\Route;
@@ -30,9 +31,12 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
     Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy'])
         ->parameters(['usuarios' => 'usuario']);
 
+    // MOD02 – Clientes (RF04–RF08) e ficha do cliente (RF23, RF24)
+    Route::patch('/clientes/{cliente}/situacao', [ClienteController::class, 'situacao'])->name('clientes.situacao');
+    Route::resource('clientes', ClienteController::class)->except('destroy');
+
     // Próximos módulos do Entregável 1
     Route::view('/orcamentos', 'em-construcao', ['titulo' => 'Orçamentos'])->name('orcamentos');
-    Route::view('/clientes', 'em-construcao', ['titulo' => 'Clientes'])->name('clientes');
     Route::view('/catalogo', 'em-construcao', ['titulo' => 'Catálogo técnico'])->name('catalogo');
     Route::view('/configuracoes', 'em-construcao', ['titulo' => 'Configurações'])->name('configuracoes');
 });

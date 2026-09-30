@@ -48,12 +48,12 @@ npm run build        # build de produção do CSS/JS
 
 ```
 app/
-  Http/Controllers/    Telas: login, recuperação de senha, usuários
+  Http/Controllers/    Telas: login, recuperação de senha, usuários, clientes
   Http/Middleware/     UsuarioAtivo (RN10)
   Http/Requests/       Validação dos formulários
-  Models/              Usuario, TokenSenha, RegistroAuditoria
-  Services/            Auditoria (RN08), LinksSenha (RF02)
-  Support/             RegrasAcesso (RN09)
+  Models/              Usuario, TokenSenha, RegistroAuditoria, Cliente, Contato
+  Services/            Auditoria (RN08), LinksSenha (RF02), CadastroClientes (UC03)
+  Support/             RegrasAcesso (RN09), Documento (CPF/CNPJ – RN01)
 database/migrations/   Esquema do banco
 resources/views/       Telas (Blade)
 routes/web.php         Rotas do sistema
@@ -72,7 +72,7 @@ com os dados do servidor de e-mail real, HTTPS e cópia de segurança do banco. 
 - [x] Estrutura do projeto
 - [x] MOD01 – Login e recuperação de senha (RF01, RF02)
 - [x] MOD01 – Cadastro de usuários (RF03)
-- [ ] MOD02 – Clientes (RF04–RF08)
+- [x] MOD02 – Clientes (RF04–RF08)
 - [ ] MOD03 – Pontos de coleta (RF09–RF11)
 - [ ] MOD04 – Catálogo técnico (RF12–RF16)
 - [ ] MOD05 – Orçamentos (RF17–RF22)

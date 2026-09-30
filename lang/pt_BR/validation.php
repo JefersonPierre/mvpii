@@ -1,0 +1,50 @@
+<?php
+
+// Mensagens de validação em português (as regras que o sistema usa).
+return [
+    'array' => 'O campo :attribute é inválido.',
+    'boolean' => 'O campo :attribute é inválido.',
+    'confirmed' => 'A confirmação de :attribute não confere.',
+    'date' => 'Informe uma data válida em :attribute.',
+    'digits' => 'O campo :attribute deve ter :digits dígitos.',
+    'digits_between' => 'O campo :attribute deve ter entre :min e :max dígitos.',
+    'email' => 'Informe um e-mail válido.',
+    'in' => 'O valor de :attribute é inválido.',
+    'integer' => 'O campo :attribute deve ser um número inteiro.',
+    'max' => [
+        'numeric' => 'O campo :attribute não pode ser maior que :max.',
+        'string' => 'O campo :attribute pode ter no máximo :max caracteres.',
+    ],
+    'min' => [
+        'array' => 'Informe ao menos :min item em :attribute.',
+        'numeric' => 'O campo :attribute deve ser no mínimo :min.',
+        'string' => 'O campo :attribute deve ter no mínimo :min caracteres.',
+    ],
+    'numeric' => 'O campo :attribute deve ser um número.',
+    'required' => 'Informe :attribute.',
+    'required_if' => 'Informe :attribute.',
+    'string' => 'O campo :attribute é inválido.',
+    'unique' => ':attribute já cadastrado.',
+
+    'attributes' => [
+        'nome' => 'o nome',
+        'email' => 'o e-mail',
+        'senha' => 'a senha',
+        'tipo_pessoa' => 'o tipo de pessoa',
+        'nome_fantasia' => 'o nome fantasia',
+        'documento' => 'o CPF/CNPJ',
+        'cep' => 'o CEP',
+        'logradouro' => 'o logradouro',
+        'numero' => 'o número',
+        'complemento' => 'o complemento',
+        'bairro' => 'o bairro',
+        'cidade' => 'a cidade',
+        'uf' => 'a UF',
+        'observacoes' => 'as observações',
+        'contatos' => 'os contatos',
+        'contatos.*.nome' => 'o nome do contato',
+        'contatos.*.cargo' => 'o cargo',
+        'contatos.*.telefone' => 'o telefone',
+        'contatos.*.email' => 'o e-mail do contato',
+    ],
+];
