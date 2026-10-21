@@ -15,6 +15,7 @@ use App\Http\Controllers\OrcamentoController;
 use App\Http\Controllers\PacoteController;
 use App\Http\Controllers\ParametroController;
 use App\Http\Controllers\PontoColetaController;
+use App\Http\Controllers\RegistroColetaController;
 use App\Http\Controllers\RespostaOrcamentoController;
 use App\Http\Controllers\TipoAmostraController;
 use App\Http\Controllers\UsuarioController;
@@ -127,6 +128,12 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
         Route::get('/coletas', AgendaController::class)->name('coletas.index');
         Route::get('/coletas/{coleta}', [ColetaController::class, 'show'])->name('coletas.show');
         Route::get('/coletas/{coleta}/ficha', [ColetaController::class, 'ficha'])->name('coletas.ficha');
+    });
+
+    // MOD09 – Registro da coleta (RF33): coletor responsável ou Administrador (ColetaPolicy)
+    Route::middleware('can:coletas.registrar')->group(function () {
+        Route::get('/coletas/{coleta}/registro', [RegistroColetaController::class, 'create'])->name('coletas.registro');
+        Route::post('/coletas/{coleta}/registro', [RegistroColetaController::class, 'store']);
     });
 
     // MOD05 – Configurações do orçamento (RF22) e critérios de recebimento (RF35)
