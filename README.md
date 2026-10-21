@@ -2,7 +2,7 @@
 
 MVP do TCC: sistema para um laboratório de análise de qualidade da água (água potável e efluentes).
 A documentação técnica do Entregável 1 (Cadastros e Orçamentos) está em [`docs/entregavel-1`](docs/entregavel-1).
-O Entregável 2 (Coletas e Perfis de Usuário) acrescenta os perfis de acesso, o agendamento e o registro das coletas e o
+O Entregável 2 (Coletas e Perfis de Usuário), documentado em [`docs/entregavel-2`](docs/entregavel-2), acrescenta os perfis de acesso, o agendamento e o registro das coletas e o
 recebimento das amostras no laboratório.
 
 ## Stack
