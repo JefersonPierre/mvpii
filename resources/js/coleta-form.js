@@ -17,7 +17,11 @@ function iniciar(form) {
             const celula = linha.querySelector('[data-restante]');
             celula.textContent = restante;
             celula.classList.toggle('text-red-600', restante < 0);
-            if (restante < 0) avisos.push(`${linha.cells[0].textContent.trim()}: só restam ${Number(linha.dataset.saldo)} amostras no orçamento.`);
+            if (restante < 0) {
+                const saldo = Number(linha.dataset.saldo);
+                const restam = saldo === 1 ? 'só resta 1 amostra' : `só restam ${Math.max(saldo, 0)} amostras`;
+                avisos.push(`${linha.cells[0].textContent.trim()}: ${restam} no orçamento.`);
+            }
         }
         const aviso = form.querySelector('[data-aviso-saldo]');
         aviso.textContent = avisos.join(' ');

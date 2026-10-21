@@ -46,7 +46,7 @@
                             @php($campo = fn ($c) => "amostras[{$amostra->id}][{$c}]")
                             @php($erro = fn ($c) => $errors->first("amostras.{$amostra->id}.{$c}"))
                             <tr>
-                                <td class="font-mono">{{ $amostra->codigo }}</td>
+                                <td class="font-mono whitespace-nowrap">{{ $amostra->codigo }}</td>
                                 <td>
                                     {{ $amostra->pontoColeta->identificacao }}
                                     <div class="text-xs text-slate-500">{{ $amostra->descricaoItens() }}</div>

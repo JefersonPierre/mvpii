@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Amostra;
+use App\Models\Coleta;
 use App\Models\Orcamento;
 use App\Models\Pacote;
 use App\Models\Usuario;
+use App\Support\Perfis;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -30,16 +33,21 @@ class DemonstracaoTest extends TestCase
         config(['laboratorio.demonstracao' => true]);
 
         $this->artisan('sistema:preparar')->assertSuccessful();
-        $this->assertDatabaseCount('usuarios', 1);
+        $this->assertDatabaseCount('usuarios', 4); // um por perfil
         $this->assertDatabaseHas('pacotes', ['ativo' => true]);
         $this->assertDatabaseCount('clientes', 1);
         $this->assertDatabaseHas('orcamentos', ['situacao' => Orcamento::RASCUNHO, 'valor_total' => 380]);
-        $this->assertDatabaseCount('orcamento_itens', 1);
+        $this->assertDatabaseHas('orcamentos', ['situacao' => Orcamento::APROVADO]);
+        $this->assertDatabaseHas('coletas', ['situacao' => Coleta::REALIZADA]);
+        $this->assertDatabaseHas('amostras', ['situacao' => Amostra::COLETADA]);
+        foreach (Perfis::NOMES as $perfil => $nome) {
+            $this->assertTrue(Usuario::ativosComPerfil($perfil)->exists(), "Sem usuário de exemplo com o perfil {$nome}.");
+        }
 
         // O que for inativado depois não volta a ser ativado no próximo início do servidor.
         Pacote::query()->update(['ativo' => false]);
         $this->artisan('sistema:preparar')->assertSuccessful();
         $this->assertDatabaseMissing('pacotes', ['ativo' => true]);
-        $this->assertDatabaseCount('orcamentos', 1);
+        $this->assertDatabaseCount('orcamentos', 2);
     }
 }

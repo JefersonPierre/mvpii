@@ -114,13 +114,13 @@ class Rastreabilidade
         // Cada etapa é o conjunto de campos gravados juntos (mesma entidade, momento e usuário).
         return $registros
             ->groupBy(fn (RegistroAuditoria $r) => implode('|', [$r->entidade, $r->acao, $r->data_hora->format('Y-m-d H:i:s'), $r->usuario_id]))
-            ->map(fn (Collection $etapa) => $this->etapa($etapa->keyBy('campo'), $etapa->first()))
+            ->map(fn (Collection $etapa) => $this->etapa($etapa->keyBy('campo'), $etapa->first(), $amostra))
             ->filter()
             ->values();
     }
 
     /** @param  Collection<string, RegistroAuditoria>  $campos */
-    private function etapa(Collection $campos, RegistroAuditoria $primeiro): ?array
+    private function etapa(Collection $campos, RegistroAuditoria $primeiro, Amostra $amostra): ?array
     {
         $novo = fn (string $campo) => $campos->get($campo)?->valor_novo;
         $detalhes = [];
@@ -153,12 +153,14 @@ class Rastreabilidade
             $titulo = $novo('situacao');
             $temperatura = $novo('temperatura_recebimento') ?? $novo('temperatura_coleta');
             $detalhes = array_filter([
+                $titulo === 'Coletada' && $amostra->coleta->data_hora_coleta
+                    ? 'Coleta em campo: '.$amostra->coleta->data_hora_coleta->format('d/m/Y H:i') : null,
                 $temperatura !== null ? Numero::decimal($temperatura).' °C' : null,
                 $novo('motivo_nao_coleta'),
                 $novo('motivo_rejeicao'),
                 $novo('observacoes_coleta'),
                 $novo('observacoes_recebimento'),
-                $novo('fora_criterios') === 'Sim' ? 'Recebida fora dos critérios de prazo ou temperatura' : null,
+                $novo('fora_criterios') === 'Sim' ? 'Fora dos critérios de prazo ou temperatura' : null,
             ]);
         } else {
             return null;

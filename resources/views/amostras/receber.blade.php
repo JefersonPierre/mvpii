@@ -41,7 +41,7 @@
                                             <input type="checkbox" name="amostras[]" value="{{ $a->id }}" aria-label="Selecionar {{ $a->codigo }}"
                                                    @checked($selecionadas->contains('id', $a->id)) @disabled($proprias($a))>
                                         </td>
-                                        <td><a href="{{ route('amostras.receber', ['codigo' => $a->codigo]) }}" class="font-mono text-teal-800 hover:underline">{{ $a->codigo }}</a></td>
+                                        <td><a href="{{ route('amostras.receber', ['codigo' => $a->codigo]) }}" class="font-mono whitespace-nowrap text-teal-800 hover:underline">{{ $a->codigo }}</a></td>
                                         <td>
                                             {{ $a->coleta->orcamento->cliente->nome }}
                                             <div class="text-xs text-slate-500">{{ $a->pontoColeta->identificacao }}</div>
