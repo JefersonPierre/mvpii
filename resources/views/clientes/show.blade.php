@@ -5,6 +5,7 @@
         'contatos' => 'Contatos ('.$cliente->contatos->count().')',
         'pontos' => 'Pontos de coleta ('.$cliente->pontosColeta->where('ativo', true)->count().')',
         'orcamentos' => 'Orçamentos ('.$cliente->orcamentos->count().')',
+        'coletas' => 'Coletas ('.$coletas->count().')',
         'historico' => 'Histórico',
     ];
     $abas = array_intersect_key($abas, array_flip($abasPermitidas));
@@ -193,6 +194,10 @@
                         </table>
                     </div>
                 @endif
+                @break
+
+            @case('coletas')
+                <x-lista-coletas :coletas="$coletas" />
                 @break
 
             @case('historico')

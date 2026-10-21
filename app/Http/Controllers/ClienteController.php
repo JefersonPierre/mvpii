@@ -75,18 +75,23 @@ class ClienteController extends Controller
         return redirect()->route('clientes.show', $cliente)->with('sucesso', $mensagem);
     }
 
-    /** RF23: ficha do cliente com abas (dados, contatos, pontos de coleta, orçamentos e histórico). */
+    /** RF23 / RF37: ficha do cliente com abas (dados, contatos, pontos de coleta, orçamentos, coletas e histórico). */
     public function show(Request $request, Cliente $cliente): View
     {
         // RF26: as abas Orçamentos e Histórico dependem do perfil (RN36: o coletor não vê os valores dos orçamentos).
         $abasPermitidas = array_values(array_filter(['dados', 'contatos', 'pontos',
-            Gate::allows('orcamentos') ? 'orcamentos' : null, Gate::allows('historico') ? 'historico' : null]));
+            Gate::allows('orcamentos') ? 'orcamentos' : null, Gate::allows('coletas.agenda') ? 'coletas' : null,
+            Gate::allows('historico') ? 'historico' : null]));
         $aba = in_array($request->query('aba'), $abasPermitidas, true) ? $request->query('aba') : 'dados';
 
         $cliente->load(['contatos', 'pontosColeta.tipoAmostra', 'orcamentos']);
         $historico = $aba === 'historico' ? $this->historico($cliente) : null;
+        // RN36: quem só tem o perfil Coletor vê apenas as próprias coletas.
+        $coletas = $cliente->coletas()->with(['coletor', 'orcamento', 'amostras.pontoColeta'])
+            ->when(! $request->user()->veTodasAsColetas(), fn ($q) => $q->where('coletas.coletor_id', $request->user()->id))
+            ->get();
 
-        return view('clientes.show', compact('cliente', 'aba', 'abasPermitidas', 'historico'));
+        return view('clientes.show', compact('cliente', 'aba', 'abasPermitidas', 'historico', 'coletas'));
     }
 
     /** RF24: histórico do cliente e dos seus pontos de coleta, do mais recente para o mais antigo. */

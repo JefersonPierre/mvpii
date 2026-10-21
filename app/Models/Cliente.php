@@ -8,6 +8,7 @@ use Database\Factories\ClienteFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -61,6 +62,12 @@ class Cliente extends Model
     public function orcamentos(): HasMany
     {
         return $this->hasMany(Orcamento::class)->orderByDesc('ano')->orderByDesc('sequencia')->orderByDesc('revisao');
+    }
+
+    /** RF37: coletas dos orçamentos do cliente. */
+    public function coletas(): HasManyThrough
+    {
+        return $this->hasManyThrough(Coleta::class, Orcamento::class)->orderByDesc('coletas.data')->orderByDesc('coletas.id');
     }
 
     /** RN18: para aprovar um orçamento, o cadastro precisa ter CPF/CNPJ e endereço. */

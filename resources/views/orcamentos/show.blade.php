@@ -202,6 +202,23 @@
         </dialog>
     @endif
 
+    @if ($orcamento->coletas->isNotEmpty() || $orcamento->permiteAgendarColeta())
+        {{-- RF28 / RF37: saldo de amostras e coletas do orçamento --}}
+        <div class="cartao space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <h2 class="text-lg font-semibold">Coletas</h2>
+                @if ($orcamento->permiteAgendarColeta() && Gate::allows('coletas.agendar'))
+                    <a href="{{ route('orcamentos.coletas.create', $orcamento) }}" class="botao botao-secundario botao-pequeno">Agendar coleta</a>
+                @endif
+            </div>
+            <p class="text-sm text-slate-500">
+                Saldo de amostras:
+                {{ $saldo->map(fn ($s) => preg_replace('/^Pacote /', '', $s['item']->descricao).' '.$s['saldo'].'/'.$s['aprovadas'])->implode(' · ') }}
+            </p>
+            <x-lista-coletas :coletas="$orcamento->coletas" />
+        </div>
+    @endif
+
     <div class="cartao space-y-3">
         <h2 class="text-lg font-semibold">Histórico</h2>
         <x-tabela-historico :registros="$registros" :campos="[

@@ -9,6 +9,7 @@ use App\Models\Orcamento;
 use App\Models\Pacote;
 use App\Models\Parametro;
 use App\Models\TipoAmostra;
+use App\Services\AgendamentoColetas;
 use App\Services\CadastroComHistorico;
 use App\Services\CadastroOrcamentos;
 use App\Support\Documento;
@@ -80,14 +81,15 @@ class OrcamentoController extends Controller
             ->with('sucesso', "Orçamento {$orcamento->numero()} salvo como rascunho.");
     }
 
-    public function show(Orcamento $orcamento, CadastroComHistorico $historico): View
+    public function show(Orcamento $orcamento, CadastroComHistorico $historico, AgendamentoColetas $agendamento): View
     {
         $this->cadastro->expirarVencidos(); // RN17
-        $orcamento->refresh()->load(['cliente', 'contato', 'tipoAmostra', 'itens', 'criadoPor']);
+        $orcamento->refresh()->load(['cliente', 'contato', 'tipoAmostra', 'itens', 'criadoPor', 'coletas.coletor', 'coletas.amostras.pontoColeta']);
+        $saldo = $agendamento->saldo($orcamento);
         $revisoes = Orcamento::where(['ano' => $orcamento->ano, 'sequencia' => $orcamento->sequencia])->orderByDesc('revisao')->get();
         $registros = $historico->historico(CadastroOrcamentos::ENTIDADE, $orcamento->id);
 
-        return view('orcamentos.show', compact('orcamento', 'revisoes', 'registros'));
+        return view('orcamentos.show', compact('orcamento', 'revisoes', 'registros', 'saldo'));
     }
 
     public function edit(Orcamento $orcamento): View|RedirectResponse

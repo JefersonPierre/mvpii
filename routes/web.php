@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\AmostraController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\NovaSenhaController;
 use App\Http\Controllers\Auth\RecuperarSenhaController;
@@ -141,6 +142,12 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
     Route::middleware('can:amostras.receber')->group(function () {
         Route::get('/amostras/receber', [RecebimentoController::class, 'create'])->name('amostras.receber');
         Route::post('/amostras/receber', [RecebimentoController::class, 'store']);
+    });
+
+    // MOD06 – Consulta de amostras e linha do tempo (RF36); o coletor vê só as das próprias coletas (AmostraPolicy)
+    Route::middleware('can:amostras.consultar')->group(function () {
+        Route::get('/amostras', [AmostraController::class, 'index'])->name('amostras.index');
+        Route::get('/amostras/{amostra:codigo}', [AmostraController::class, 'show'])->name('amostras.show');
     });
 
     // MOD05 – Configurações do orçamento (RF22) e critérios de recebimento (RF35)

@@ -26,10 +26,8 @@
                 </p>
             </div>
             <div class="flex flex-wrap gap-2">
-                @if (Route::has('coletas.ficha'))
-                    <a href="{{ route('coletas.ficha', $coleta) }}" target="_blank" class="botao botao-secundario">Imprimir ficha de coleta</a>
-                @endif
-                @if ($coleta->podeRegistrar() && Route::has('coletas.registro') && Gate::allows('registrar', $coleta))
+                <a href="{{ route('coletas.ficha', $coleta) }}" target="_blank" class="botao botao-secundario">Imprimir ficha de coleta</a>
+                @if ($coleta->podeRegistrar() && Gate::allows('registrar', $coleta))
                     <a href="{{ route('coletas.registro', $coleta) }}" class="botao botao-primario">Registrar coleta</a>
                 @endif
                 @can('coletas.agendar')
@@ -106,11 +104,7 @@
                         @foreach ($coleta->amostras as $amostra)
                             <tr>
                                 <td>
-                                    @if (Route::has('amostras.show'))
-                                        <a href="{{ route('amostras.show', $amostra) }}" class="font-mono text-teal-800 hover:underline">{{ $amostra->codigo }}</a>
-                                    @else
-                                        <span class="font-mono">{{ $amostra->codigo }}</span>
-                                    @endif
+                                    <a href="{{ route('amostras.show', $amostra) }}" class="font-mono text-teal-800 hover:underline">{{ $amostra->codigo }}</a>
                                 </td>
                                 <td>{{ $amostra->pontoColeta->identificacao }}</td>
                                 <td class="text-sm">{{ $amostra->descricaoItens() }}</td>

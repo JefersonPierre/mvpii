@@ -6,6 +6,7 @@
         ['rotulo' => 'Início', 'rota' => 'inicio', 'ativo' => request()->routeIs('inicio'), 'permissao' => null],
         ['rotulo' => 'Orçamentos', 'rota' => 'orcamentos.index', 'ativo' => request()->routeIs('orcamentos.*') && ! request()->routeIs('orcamentos.coletas.*'), 'permissao' => 'orcamentos'],
         ['rotulo' => 'Coletas', 'rota' => 'coletas.index', 'ativo' => request()->routeIs('coletas.*', 'orcamentos.coletas.*'), 'permissao' => 'coletas.agenda'],
+        ['rotulo' => 'Amostras', 'rota' => 'amostras.index', 'ativo' => request()->routeIs('amostras.*'), 'permissao' => 'amostras.consultar'],
         ['rotulo' => 'Clientes', 'rota' => 'clientes.index', 'ativo' => request()->routeIs('clientes.*', 'pontos.*'), 'permissao' => 'clientes.consultar'],
         ['rotulo' => 'Catálogo técnico', 'rota' => 'catalogo', 'ativo' => request()->routeIs('catalogo*'), 'permissao' => 'catalogo.consultar'],
         ['rotulo' => 'Usuários', 'rota' => 'usuarios.index', 'ativo' => request()->routeIs('usuarios.*'), 'permissao' => 'usuarios'],
