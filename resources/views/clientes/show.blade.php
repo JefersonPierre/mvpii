@@ -7,6 +7,8 @@
         'orcamentos' => 'Orçamentos ('.$cliente->orcamentos->count().')',
         'historico' => 'Histórico',
     ];
+    $abas = array_intersect_key($abas, array_flip($abasPermitidas));
+    $editar = Gate::allows('clientes.editar');
     $camposHistorico = [
         'interessado' => 'Tipo de cadastro', 'tipo_pessoa' => 'Pessoa', 'nome' => 'Nome / razão social',
         'nome_fantasia' => 'Nome fantasia', 'documento' => 'CPF/CNPJ', 'cep' => 'CEP', 'logradouro' => 'Logradouro',
@@ -34,6 +36,7 @@
                     @if ($cliente->cidade) · {{ $cliente->cidade }}/{{ $cliente->uf }} @endif
                 </p>
             </div>
+            @if ($editar)
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('clientes.edit', $cliente) }}" class="botao botao-secundario">Editar</a>
                 @if ($cliente->ativo)
@@ -47,12 +50,15 @@
                     </form>
                 @endif
             </div>
+            @endif
         </div>
 
         @if ($cliente->interessado)
             <div class="alerta border-amber-200 bg-amber-50 text-amber-900">
                 Cadastro rápido de interessado. CPF/CNPJ e endereço serão exigidos na aprovação do orçamento.
-                <a href="{{ route('clientes.edit', $cliente) }}" class="font-medium underline">Completar cadastro</a>
+                @if ($editar)
+                    <a href="{{ route('clientes.edit', $cliente) }}" class="font-medium underline">Completar cadastro</a>
+                @endif
             </div>
         @endif
         @unless ($cliente->ativo)
@@ -111,7 +117,7 @@
                 {{-- RF11: pontos de coleta do cliente, cada um com o tipo de amostra padrão (RN03) --}}
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <p class="text-sm text-slate-500">Cada ponto tem um tipo de amostra padrão.</p>
-                    @if ($cliente->ativo)
+                    @if ($cliente->ativo && $editar)
                         <a href="{{ route('pontos.create', $cliente) }}" class="botao botao-primario">Novo ponto</a>
                     @endif
                 </div>
@@ -120,7 +126,7 @@
                 @else
                     <div class="overflow-x-auto">
                         <table class="tabela min-w-[760px]">
-                            <thead><tr><th>Ponto de coleta</th><th>Tipo de amostra</th><th>Endereço e referência</th><th>Situação</th><th><span class="sr-only">Ações</span></th></tr></thead>
+                            <thead><tr><th>Ponto de coleta</th><th>Tipo de amostra</th><th>Endereço e referência</th><th>Situação</th>@if ($editar)<th><span class="sr-only">Ações</span></th>@endif</tr></thead>
                             <tbody>
                                 @foreach ($cliente->pontosColeta as $ponto)
                                     <tr>
@@ -134,6 +140,7 @@
                                             @endif
                                         </td>
                                         <td><x-selo-situacao :ativo="$ponto->ativo" /></td>
+                                        @if ($editar)
                                         <td>
                                             <div class="flex justify-end gap-2">
                                                 <a href="{{ route('pontos.edit', $ponto) }}" class="botao botao-pequeno botao-secundario">Editar</a>
@@ -149,6 +156,7 @@
                                                 </form>
                                             </div>
                                         </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>

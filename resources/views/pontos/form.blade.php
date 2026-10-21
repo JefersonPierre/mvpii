@@ -42,7 +42,14 @@
                 </select>
                 @error('tipo_amostra_id') <p class="erro">{{ $message }}</p> @enderror
                 @if ($tipos->isEmpty())
-                    <p class="ajuda">Nenhum tipo de amostra ativo. <a href="{{ route('catalogo.tipos-amostra.create') }}" class="underline">Cadastrar no catálogo</a>.</p>
+                    <p class="ajuda">
+                        Nenhum tipo de amostra ativo.
+                        @can('catalogo.editar')
+                            <a href="{{ route('catalogo.tipos-amostra.create') }}" class="underline">Cadastrar no catálogo</a>.
+                        @else
+                            Peça ao administrador para cadastrar no catálogo.
+                        @endcan
+                    </p>
                 @endif
             </div>
         </div>

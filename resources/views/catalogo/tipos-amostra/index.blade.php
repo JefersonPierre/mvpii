@@ -4,7 +4,9 @@
 
     <div class="flex flex-wrap items-end justify-between gap-2">
         <h1 class="text-2xl font-semibold">Tipos de amostra</h1>
-        <a href="{{ route('catalogo.tipos-amostra.create') }}" class="botao botao-primario">Novo tipo de amostra</a>
+        @can('catalogo.editar')
+            <a href="{{ route('catalogo.tipos-amostra.create') }}" class="botao botao-primario">Novo tipo de amostra</a>
+        @endcan
     </div>
 
     <div class="cartao">
@@ -22,20 +24,8 @@
                                 <td>{{ $tipo->pontos_coleta_count }}</td>
                                 <td><x-selo-situacao :ativo="$tipo->ativo" /></td>
                                 <td>
-                                    <div class="flex justify-end gap-2">
-                                        <a href="{{ route('catalogo.tipos-amostra.edit', $tipo) }}" class="botao botao-pequeno botao-secundario">Editar</a>
-                                        <a href="{{ route('catalogo.tipos-amostra.historico', $tipo) }}" class="botao botao-pequeno botao-secundario">Histórico</a>
-                                        <form method="POST" action="{{ route('catalogo.tipos-amostra.situacao', $tipo) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="ativo" value="{{ $tipo->ativo ? 0 : 1 }}">
-                                            @if ($tipo->ativo)
-                                                <button type="submit" class="botao botao-pequeno botao-perigo">Inativar</button>
-                                            @else
-                                                <button type="submit" class="botao botao-pequeno bg-teal-50 text-teal-700 hover:bg-teal-100">Reativar</button>
-                                            @endif
-                                        </form>
-                                    </div>
+                                    <x-acoes-catalogo :editar="route('catalogo.tipos-amostra.edit', $tipo)" :historico="route('catalogo.tipos-amostra.historico', $tipo)"
+                                                      :situacao="route('catalogo.tipos-amostra.situacao', $tipo)" :ativo="$tipo->ativo" />
                                 </td>
                             </tr>
                         @endforeach

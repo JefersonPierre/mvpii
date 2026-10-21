@@ -1,14 +1,15 @@
 @props(['titulo'])
 
 @php
-    $menu = [
-        ['rotulo' => 'Início', 'rota' => 'inicio', 'ativo' => request()->routeIs('inicio')],
-        ['rotulo' => 'Orçamentos', 'rota' => 'orcamentos.index', 'ativo' => request()->routeIs('orcamentos.*')],
-        ['rotulo' => 'Clientes', 'rota' => 'clientes.index', 'ativo' => request()->routeIs('clientes.*', 'pontos.*')],
-        ['rotulo' => 'Catálogo técnico', 'rota' => 'catalogo', 'ativo' => request()->routeIs('catalogo*')],
-        ['rotulo' => 'Usuários', 'rota' => 'usuarios.index', 'ativo' => request()->routeIs('usuarios.*')],
-        ['rotulo' => 'Configurações', 'rota' => 'configuracoes', 'ativo' => request()->routeIs('configuracoes*')],
-    ];
+    // RF26 / RN26: o menu mostra só o que os perfis do usuário permitem (a permissão também é conferida no servidor).
+    $menu = collect([
+        ['rotulo' => 'Início', 'rota' => 'inicio', 'ativo' => request()->routeIs('inicio'), 'permissao' => null],
+        ['rotulo' => 'Orçamentos', 'rota' => 'orcamentos.index', 'ativo' => request()->routeIs('orcamentos.*'), 'permissao' => 'orcamentos'],
+        ['rotulo' => 'Clientes', 'rota' => 'clientes.index', 'ativo' => request()->routeIs('clientes.*', 'pontos.*'), 'permissao' => 'clientes.consultar'],
+        ['rotulo' => 'Catálogo técnico', 'rota' => 'catalogo', 'ativo' => request()->routeIs('catalogo*'), 'permissao' => 'catalogo.consultar'],
+        ['rotulo' => 'Usuários', 'rota' => 'usuarios.index', 'ativo' => request()->routeIs('usuarios.*'), 'permissao' => 'usuarios'],
+        ['rotulo' => 'Configurações', 'rota' => 'configuracoes', 'ativo' => request()->routeIs('configuracoes*'), 'permissao' => 'configuracoes'],
+    ])->filter(fn ($item) => $item['permissao'] === null || Gate::allows($item['permissao']));
 @endphp
 
 {{-- Moldura das telas internas: menu lateral + conteúdo. --}}
@@ -30,7 +31,10 @@
                 @endforeach
             </nav>
             <div class="mt-6 flex items-center justify-between gap-2 border-t border-slate-700 pt-4">
-                <span class="truncate text-sm text-slate-400">{{ auth()->user()->nome }}</span>
+                <span class="min-w-0 text-sm">
+                    <span class="block truncate text-slate-300">{{ auth()->user()->nome }}</span>
+                    <span class="block truncate text-xs text-slate-400">{{ auth()->user()->nomesPerfis() }}</span>
+                </span>
                 <form method="POST" action="{{ route('sair') }}">
                     @csrf
                     <button type="submit" class="cursor-pointer text-sm text-slate-300 hover:text-white">Sair</button>

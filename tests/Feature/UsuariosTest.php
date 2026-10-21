@@ -38,13 +38,13 @@ class UsuariosTest extends TestCase
     {
         Mail::fake();
 
-        $this->post('/usuarios', ['nome' => 'Maria Souza', 'email' => 'Maria@Laboratorio.local'])
+        $this->post('/usuarios', ['nome' => 'Maria Souza', 'email' => 'Maria@Laboratorio.local', 'perfis' => ['RECEPCAO']])
             ->assertRedirect(route('usuarios.index'))
             ->assertSessionHas('sucesso');
 
         $maria = Usuario::where('email', 'maria@laboratorio.local')->firstOrFail();
         Mail::assertSent(LinkSenhaMail::class, fn ($m) => $m->tipo === LinkSenhaMail::CONVITE && $m->hasTo('maria@laboratorio.local'));
-        $this->assertSame(3, RegistroAuditoria::where(['registro_id' => $maria->id, 'acao' => 'INCLUSAO'])->count());
+        $this->assertSame(4, RegistroAuditoria::where(['registro_id' => $maria->id, 'acao' => 'INCLUSAO'])->count());
     }
 
     public function test_email_duplicado_e_recusado(): void
@@ -59,7 +59,7 @@ class UsuariosTest extends TestCase
     {
         $maria = Usuario::factory()->create(['nome' => 'Maria', 'email' => 'maria@antigo.local']);
 
-        $this->put("/usuarios/{$maria->id}", ['nome' => 'Maria', 'email' => 'maria@laboratorio.local'])
+        $this->put("/usuarios/{$maria->id}", ['nome' => 'Maria', 'email' => 'maria@laboratorio.local', 'perfis' => ['ADMINISTRADOR']])
             ->assertRedirect(route('usuarios.index'));
 
         $registro = RegistroAuditoria::where('registro_id', $maria->id)->sole();

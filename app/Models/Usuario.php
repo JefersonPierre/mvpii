@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\Perfis;
 use Database\Factories\UsuarioFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
 
 /**
- * Usuário do sistema (RF01–RF03).
+ * Usuário do sistema (RF01–RF03), com um ou mais perfis (RF25).
  *
  * @property int $id
  * @property string $nome
@@ -57,5 +59,62 @@ class Usuario extends Authenticatable
     public function tokensSenha(): HasMany
     {
         return $this->hasMany(TokenSenha::class);
+    }
+
+    public function perfis(): HasMany
+    {
+        return $this->hasMany(UsuarioPerfil::class);
+    }
+
+    /**
+     * Códigos dos perfis, na ordem de Perfis::NOMES.
+     *
+     * @return list<string>
+     */
+    public function listaPerfis(): array
+    {
+        return Perfis::normalizar($this->perfis->pluck('perfil'));
+    }
+
+    /** Verdadeiro se o usuário tem ao menos um dos perfis informados. */
+    public function temPerfil(string ...$perfis): bool
+    {
+        return array_intersect($this->listaPerfis(), $perfis) !== [];
+    }
+
+    public function nomesPerfis(): string
+    {
+        return Perfis::nomes($this->listaPerfis());
+    }
+
+    /** RN36: quem só tem o perfil Coletor vê apenas as coletas e amostras atribuídas a ele. */
+    public function veTodasAsColetas(): bool
+    {
+        return $this->temPerfil(...Perfis::VEEM_TODAS_AS_COLETAS);
+    }
+
+    /**
+     * Substitui os perfis do usuário. Chame dentro de uma transação; as regras (RN24) ficam com quem chama.
+     *
+     * @param  iterable<string>  $perfis
+     */
+    public function definirPerfis(iterable $perfis): void
+    {
+        $perfis = Perfis::normalizar($perfis);
+        $this->perfis()->whereNotIn('perfil', $perfis)->delete();
+        foreach (array_diff($perfis, $this->perfis()->pluck('perfil')->all()) as $perfil) {
+            $this->perfis()->create(['perfil' => $perfil]);
+        }
+        $this->unsetRelation('perfis');
+    }
+
+    /**
+     * Usuários ativos com o perfil informado, ex.: os coletores do agendamento (RN29).
+     *
+     * @param  Builder<Usuario>  $query
+     */
+    public function scopeAtivosComPerfil(Builder $query, string $perfil): void
+    {
+        $query->where('ativo', true)->whereHas('perfis', fn ($q) => $q->where('perfil', $perfil));
     }
 }

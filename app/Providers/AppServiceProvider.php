@@ -2,12 +2,15 @@
 
 namespace App\Providers;
 
+use App\Models\Usuario;
 use App\Services\Auditoria;
+use App\Support\Perfis;
 use Collator;
 use Illuminate\Database\Events\ConnectionEstablished;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Pdo\Sqlite;
 
@@ -22,6 +25,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->ordemAlfabeticaEmPortugues();
+        $this->permissoesPorPerfil();
+    }
+
+    /** RF26 / RN26: uma Gate por linha da matriz de permissões; usada nas rotas (can:...) e no menu (@can). */
+    private function permissoesPorPerfil(): void
+    {
+        foreach (Perfis::PERMISSOES as $permissao => $perfis) {
+            Gate::define($permissao, fn (Usuario $usuario) => $usuario->temPerfil(...$perfis));
+        }
     }
 
     /**
