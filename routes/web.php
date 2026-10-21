@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\NovaSenhaController;
 use App\Http\Controllers\Auth\RecuperarSenhaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ColetaController;
 use App\Http\Controllers\ConfiguracaoController;
 use App\Http\Controllers\EnvioOrcamentoController;
 use App\Http\Controllers\InicioController;
@@ -109,6 +111,22 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
         Route::post('/orcamentos/{orcamento}/envio', [EnvioOrcamentoController::class, 'store']);
         Route::post('/orcamentos/{orcamento}/resposta', [RespostaOrcamentoController::class, 'store'])->name('orcamentos.resposta');
         Route::resource('orcamentos', OrcamentoController::class)->except('destroy');
+    });
+
+    // MOD08 – Agendamento de coletas (RF27–RF30): a partir do orçamento aprovado
+    Route::middleware('can:coletas.agendar')->group(function () {
+        Route::get('/orcamentos/{orcamento}/coletas/create', [ColetaController::class, 'create'])->name('orcamentos.coletas.create');
+        Route::post('/orcamentos/{orcamento}/coletas', [ColetaController::class, 'store'])->name('orcamentos.coletas.store');
+        Route::get('/coletas/{coleta}/edit', [ColetaController::class, 'edit'])->name('coletas.edit');
+        Route::put('/coletas/{coleta}', [ColetaController::class, 'update'])->name('coletas.update');
+        Route::post('/coletas/{coleta}/cancelar', [ColetaController::class, 'cancelar'])->name('coletas.cancelar');
+    });
+
+    // MOD08 – Agenda e ficha de coleta (RF31, RF32); o coletor vê só as próprias (ColetaPolicy)
+    Route::middleware('can:coletas.agenda')->group(function () {
+        Route::get('/coletas', AgendaController::class)->name('coletas.index');
+        Route::get('/coletas/{coleta}', [ColetaController::class, 'show'])->name('coletas.show');
+        Route::get('/coletas/{coleta}/ficha', [ColetaController::class, 'ficha'])->name('coletas.ficha');
     });
 
     // MOD05 – Configurações do orçamento (RF22) e critérios de recebimento (RF35)

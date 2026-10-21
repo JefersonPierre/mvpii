@@ -93,6 +93,18 @@ class Orcamento extends Model
         return $this->belongsTo(self::class, 'substitui_id');
     }
 
+    /** RF37: coletas agendadas a partir deste orçamento. */
+    public function coletas(): HasMany
+    {
+        return $this->hasMany(Coleta::class)->orderByDesc('data')->orderByDesc('id');
+    }
+
+    /** RN27: só orçamento Aprovado origina agendamento de coleta. */
+    public function permiteAgendarColeta(): bool
+    {
+        return $this->situacao === self::APROVADO;
+    }
+
     public function criadoPor(): BelongsTo
     {
         return $this->belongsTo(Usuario::class, 'criado_por_id');

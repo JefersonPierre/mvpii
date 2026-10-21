@@ -4,7 +4,8 @@
     // RF26 / RN26: o menu mostra só o que os perfis do usuário permitem (a permissão também é conferida no servidor).
     $menu = collect([
         ['rotulo' => 'Início', 'rota' => 'inicio', 'ativo' => request()->routeIs('inicio'), 'permissao' => null],
-        ['rotulo' => 'Orçamentos', 'rota' => 'orcamentos.index', 'ativo' => request()->routeIs('orcamentos.*'), 'permissao' => 'orcamentos'],
+        ['rotulo' => 'Orçamentos', 'rota' => 'orcamentos.index', 'ativo' => request()->routeIs('orcamentos.*') && ! request()->routeIs('orcamentos.coletas.*'), 'permissao' => 'orcamentos'],
+        ['rotulo' => 'Coletas', 'rota' => 'coletas.index', 'ativo' => request()->routeIs('coletas.*', 'orcamentos.coletas.*'), 'permissao' => 'coletas.agenda'],
         ['rotulo' => 'Clientes', 'rota' => 'clientes.index', 'ativo' => request()->routeIs('clientes.*', 'pontos.*'), 'permissao' => 'clientes.consultar'],
         ['rotulo' => 'Catálogo técnico', 'rota' => 'catalogo', 'ativo' => request()->routeIs('catalogo*'), 'permissao' => 'catalogo.consultar'],
         ['rotulo' => 'Usuários', 'rota' => 'usuarios.index', 'ativo' => request()->routeIs('usuarios.*'), 'permissao' => 'usuarios'],

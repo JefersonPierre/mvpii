@@ -30,6 +30,9 @@
                 @else
                     <a href="{{ route('orcamentos.pdf', $orcamento) }}" target="_blank" class="botao botao-secundario">Ver PDF</a>
                 @endif
+                @if ($orcamento->permiteAgendarColeta() && Gate::allows('coletas.agendar'))
+                    <a href="{{ route('orcamentos.coletas.create', $orcamento) }}" class="botao botao-primario">Agendar coleta</a>
+                @endif
                 @if ($orcamento->situacao === Orcamento::ENVIADO)
                     <button type="button" class="botao botao-primario" data-abrir-dialogo="dialogo-resposta">Registrar resposta</button>
                 @endif
