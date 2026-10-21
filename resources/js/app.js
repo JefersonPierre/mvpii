@@ -5,3 +5,5 @@ import './ponto-form';
 import './pacote-form';
 import './limite-form';
 import './orcamento-form';
+import './coleta-form';
+import './recebimento-form';

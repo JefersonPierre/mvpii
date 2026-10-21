@@ -6,6 +6,6 @@
     </div>
 
     <div class="cartao space-y-4">
-        <x-tabela-historico :registros="$registros" :campos="['nome' => 'Nome', 'email' => 'E-mail', 'ativo' => 'Situação']" />
+        <x-tabela-historico :registros="$registros" :campos="['nome' => 'Nome', 'email' => 'E-mail', 'ativo' => 'Situação', 'perfis' => 'Perfis']" />
     </div>
 </x-layout>

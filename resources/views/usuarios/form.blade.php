@@ -1,5 +1,8 @@
-{{-- UC02 – incluir e editar usuário (RF03, RN11) --}}
+{{-- UC02 – incluir e editar usuário (RF03, RN11) e UC13 – perfis do usuário (RF25, RN23, RN24) --}}
+@use('App\Support\Perfis')
 @php($novo = ! $usuario->exists)
+@php($proprio = $usuario->is(auth()->user()))
+@php($marcados = old('perfis', $novo ? [] : $usuario->listaPerfis()))
 
 <x-layout :titulo="$novo ? 'Novo usuário' : 'Editar usuário'">
     <div>
@@ -27,6 +30,33 @@
             @endif
             @error('email') <p class="erro">{{ $message }}</p> @enderror
         </div>
+
+        <fieldset>
+            <legend class="rotulo">Perfis</legend>
+            <div class="space-y-2">
+                @foreach (Perfis::NOMES as $codigo => $nome)
+                    <label @class(['flex items-start gap-2 rounded-md border border-slate-200 px-3 py-2', 'opacity-60' => $proprio])>
+                        <input type="checkbox" name="perfis[]" value="{{ $codigo }}" class="mt-1"
+                               @checked(in_array($codigo, $marcados, true)) @disabled($proprio)>
+                        <span>
+                            <span class="block text-sm font-medium">{{ $nome }}</span>
+                            <span class="block text-xs text-slate-500">{{ Perfis::DESCRICOES[$codigo] }}</span>
+                        </span>
+                    </label>
+                @endforeach
+            </div>
+            @if ($proprio)
+                {{-- RN24: os próprios perfis não podem ser alterados; os atuais seguem no formulário. --}}
+                @foreach ($usuario->listaPerfis() as $codigo)
+                    <input type="hidden" name="perfis[]" value="{{ $codigo }}">
+                @endforeach
+                <p class="ajuda">Você não pode alterar os próprios perfis. Peça a outro administrador.</p>
+            @else
+                <p class="ajuda">As permissões do usuário são a soma das permissões dos perfis marcados.</p>
+            @endif
+            @error('perfis') <p class="erro">{{ $message }}</p> @enderror
+            @error('perfis.*') <p class="erro">{{ $message }}</p> @enderror
+        </fieldset>
 
         <div class="flex justify-end gap-2">
             <a href="{{ route('usuarios.index') }}" class="botao botao-secundario">Cancelar</a>

@@ -1,6 +1,7 @@
 {{-- RF15 / RF16 – legislação e seus limites --}}
 @use('App\Support\Numero')
 @php($editavel = ! $legislacao->encerrada())
+@php($podeEditar = Gate::allows('catalogo.editar'))
 
 <x-layout :titulo="$legislacao->nome">
     <x-abas-catalogo />
@@ -28,11 +29,15 @@
                 @endif
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('catalogo.legislacoes.historico', $legislacao) }}" class="botao botao-secundario">Histórico</a>
-                <a href="{{ route('catalogo.legislacoes.edit', $legislacao) }}" class="botao botao-secundario">Editar</a>
-                @unless ($legislacao->substituida_por_id)
-                    <a href="{{ route('catalogo.legislacoes.create', ['substitui' => $legislacao->id]) }}" class="botao botao-secundario">Substituir por nova</a>
-                @endunless
+                @can('historico')
+                    <a href="{{ route('catalogo.legislacoes.historico', $legislacao) }}" class="botao botao-secundario">Histórico</a>
+                @endcan
+                @can('catalogo.editar')
+                    <a href="{{ route('catalogo.legislacoes.edit', $legislacao) }}" class="botao botao-secundario">Editar</a>
+                    @unless ($legislacao->substituida_por_id)
+                        <a href="{{ route('catalogo.legislacoes.create', ['substitui' => $legislacao->id]) }}" class="botao botao-secundario">Substituir por nova</a>
+                    @endunless
+                @endcan
             </div>
         </div>
     </div>
@@ -40,7 +45,7 @@
     <div class="cartao space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 class="text-lg font-semibold">Limites ({{ $limites->count() }})</h2>
-            @if ($editavel)
+            @if ($editavel && $podeEditar)
                 <a href="{{ route('catalogo.limites.create', $legislacao) }}" class="botao botao-primario">Adicionar limite</a>
             @endif
         </div>
@@ -53,7 +58,7 @@
         @else
             <div class="overflow-x-auto">
                 <table class="tabela min-w-[760px]">
-                    <thead><tr><th>Parâmetro</th><th>Tipo de amostra</th><th>Tipo de limite</th><th class="text-right">Mínimo</th><th class="text-right">Máximo</th><th>Unidade</th><th>Observação</th>@if ($editavel)<th><span class="sr-only">Ações</span></th>@endif</tr></thead>
+                    <thead><tr><th>Parâmetro</th><th>Tipo de amostra</th><th>Tipo de limite</th><th class="text-right">Mínimo</th><th class="text-right">Máximo</th><th>Unidade</th><th>Observação</th>@if ($editavel && $podeEditar)<th><span class="sr-only">Ações</span></th>@endif</tr></thead>
                     <tbody>
                         @foreach ($limites as $limite)
                             <tr>
@@ -64,7 +69,7 @@
                                 <td class="text-right font-mono">{{ Numero::decimal($limite->valor_maximo) ?: '—' }}</td>
                                 <td class="font-mono text-xs">{{ $limite->parametro->unidade }}</td>
                                 <td>{{ $limite->observacao ?: '—' }}</td>
-                                @if ($editavel)
+                                @if ($editavel && $podeEditar)
                                     <td>
                                         <div class="flex justify-end gap-2">
                                             <a href="{{ route('catalogo.limites.edit', $limite) }}" class="botao botao-pequeno botao-secundario">Editar</a>

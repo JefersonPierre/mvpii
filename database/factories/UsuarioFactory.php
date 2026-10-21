@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Usuario;
+use App\Support\Perfis;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,6 +21,21 @@ class UsuarioFactory extends Factory
             'senha' => 'Senha1234',
             'ativo' => true,
         ];
+    }
+
+    /** Sem perfis informados, o usuário é Administrador, como os usuários do Entregável 1 (RN25). */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Usuario $usuario) {
+            if (! $usuario->perfis()->exists()) {
+                $usuario->definirPerfis([Perfis::ADMINISTRADOR]);
+            }
+        });
+    }
+
+    public function comPerfis(string ...$perfis): static
+    {
+        return $this->afterCreating(fn (Usuario $usuario) => $usuario->definirPerfis($perfis));
     }
 
     public function inativo(): static

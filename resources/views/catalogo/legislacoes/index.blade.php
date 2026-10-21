@@ -4,7 +4,9 @@
 
     <div class="flex flex-wrap items-end justify-between gap-2">
         <h1 class="text-2xl font-semibold">Legislações e limites</h1>
-        <a href="{{ route('catalogo.legislacoes.create') }}" class="botao botao-primario">Nova legislação</a>
+        @can('catalogo.editar')
+            <a href="{{ route('catalogo.legislacoes.create') }}" class="botao botao-primario">Nova legislação</a>
+        @endcan
     </div>
 
     <div class="cartao">

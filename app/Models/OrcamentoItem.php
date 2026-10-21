@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Item do orçamento: pacote ou parâmetro avulso, com nome e preço copiados do catálogo (RN15).
@@ -41,6 +42,12 @@ class OrcamentoItem extends Model
     public function parametro(): BelongsTo
     {
         return $this->belongsTo(Parametro::class);
+    }
+
+    /** Amostras agendadas para este item (RN28). */
+    public function amostras(): BelongsToMany
+    {
+        return $this->belongsToMany(Amostra::class, 'amostra_itens');
     }
 
     /** Referência ao catálogo usada no formulário: "PACOTE:3" ou "PARAMETRO:7". */

@@ -7,7 +7,9 @@
 
     <div class="flex flex-wrap items-end justify-between gap-2">
         <h1 class="text-2xl font-semibold">Parâmetros de análise</h1>
-        <a href="{{ route('catalogo.parametros.create') }}" class="botao botao-primario">Novo parâmetro</a>
+        @can('catalogo.editar')
+            <a href="{{ route('catalogo.parametros.create') }}" class="botao botao-primario">Novo parâmetro</a>
+        @endcan
     </div>
 
     <div class="cartao space-y-4">

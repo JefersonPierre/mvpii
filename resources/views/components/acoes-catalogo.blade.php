@@ -2,9 +2,14 @@
 
 {{-- Botões Editar, Histórico e Inativar/Reativar das listas do catálogo. --}}
 <div class="flex justify-end gap-2">
-    <a href="{{ $editar }}" class="botao botao-pequeno botao-secundario">Editar</a>
-    <a href="{{ $historico }}" class="botao botao-pequeno botao-secundario">Histórico</a>
-    @if ($situacao)
+    {{-- RF26: o catálogo é alterado só pelo Administrador; o histórico, pela Recepção também (seção 7.4). --}}
+    @can('catalogo.editar')
+        <a href="{{ $editar }}" class="botao botao-pequeno botao-secundario">Editar</a>
+    @endcan
+    @can('historico')
+        <a href="{{ $historico }}" class="botao botao-pequeno botao-secundario">Histórico</a>
+    @endcan
+    @if ($situacao && Gate::allows('catalogo.editar'))
         <form method="POST" action="{{ $situacao }}">
             @csrf
             @method('PATCH')

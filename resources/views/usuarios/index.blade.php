@@ -1,4 +1,5 @@
-{{-- UC02 – Cadastrar usuários (RF03, RN10) --}}
+{{-- UC02 – Cadastrar usuários (RF03, RN10) e UC13 – perfis (RF25) --}}
+@use('App\Support\Perfis')
 <x-layout titulo="Usuários">
     <div class="flex flex-wrap items-center justify-between gap-2">
         <h1 class="text-2xl font-semibold">Usuários</h1>
@@ -10,6 +11,15 @@
             <div class="min-w-48 flex-1">
                 <label for="busca" class="rotulo">Buscar</label>
                 <input id="busca" name="busca" type="search" value="{{ $busca }}" placeholder="Nome ou e-mail" class="campo">
+            </div>
+            <div>
+                <label for="perfil" class="rotulo">Perfil</label>
+                <select id="perfil" name="perfil" class="campo" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    @foreach (Perfis::NOMES as $valor => $rotulo)
+                        <option value="{{ $valor }}" @selected($perfil === $valor)>{{ $rotulo }}</option>
+                    @endforeach
+                </select>
             </div>
             <div>
                 <label for="situacao" class="rotulo">Situação</label>
@@ -26,11 +36,12 @@
             <p class="text-slate-500">Nenhum usuário encontrado.</p>
         @else
             <div class="overflow-x-auto">
-                <table class="tabela min-w-[640px]">
+                <table class="tabela min-w-[760px]">
                     <thead>
                         <tr>
                             <th>Nome</th>
                             <th>E-mail</th>
+                            <th>Perfis</th>
                             <th>Situação</th>
                             <th><span class="sr-only">Ações</span></th>
                         </tr>
@@ -40,6 +51,13 @@
                             <tr>
                                 <td>{{ $u->nome }}</td>
                                 <td>{{ $u->email }}</td>
+                                <td>
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach ($u->listaPerfis() as $p)
+                                            <span class="selo bg-sky-100 text-sky-800">{{ Perfis::NOMES[$p] }}</span>
+                                        @endforeach
+                                    </div>
+                                </td>
                                 <td>
                                     <span @class(['selo', 'bg-teal-100 text-teal-800' => $u->ativo, 'bg-slate-200 text-slate-700' => ! $u->ativo])>
                                         {{ $u->ativo ? 'Ativo' : 'Inativo' }}

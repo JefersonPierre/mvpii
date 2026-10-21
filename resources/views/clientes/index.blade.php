@@ -6,8 +6,10 @@
             <p class="text-sm text-slate-500">Pesquise, abra a ficha e acompanhe o histórico.</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('clientes.create', ['cadastro' => 'interessado']) }}" class="botao botao-secundario">Cadastro rápido de interessado</a>
-            <a href="{{ route('clientes.create') }}" class="botao botao-primario">Novo cliente</a>
+            @can('clientes.editar')
+                <a href="{{ route('clientes.create', ['cadastro' => 'interessado']) }}" class="botao botao-secundario">Cadastro rápido de interessado</a>
+                <a href="{{ route('clientes.create') }}" class="botao botao-primario">Novo cliente</a>
+            @endcan
         </div>
     </div>
 
@@ -41,7 +43,9 @@
             {{-- UC07 3a: nenhum resultado sugere cadastrar --}}
             <div class="rounded-md border border-dashed border-slate-300 p-6 text-center">
                 <p class="mb-3 text-slate-600">Nenhum cliente encontrado.</p>
-                <a href="{{ route('clientes.create') }}" class="botao botao-primario">Cadastrar novo cliente</a>
+                @can('clientes.editar')
+                    <a href="{{ route('clientes.create') }}" class="botao botao-primario">Cadastrar novo cliente</a>
+                @endcan
             </div>
         @else
             <div class="overflow-x-auto">

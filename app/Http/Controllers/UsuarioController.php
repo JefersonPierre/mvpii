@@ -8,18 +8,19 @@ use App\Models\RegistroAuditoria;
 use App\Models\Usuario;
 use App\Services\Auditoria;
 use App\Services\LinksSenha;
+use App\Support\Perfis;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-// UC02 – Cadastrar usuários (RF03, RN08, RN10, RN11)
+// UC02 – Cadastrar usuários (RF03, RN08, RN10, RN11) e UC13 – Cadastrar perfis de usuário (RF25, RN23, RN24)
 class UsuarioController extends Controller
 {
     private const ENTIDADE = 'USUARIO';
 
-    private const CAMPOS_AUDITADOS = ['nome', 'email', 'ativo'];
+    private const CAMPOS_AUDITADOS = ['nome', 'email', 'ativo', 'perfis'];
 
     public function __construct(private readonly Auditoria $auditoria) {}
 
@@ -30,17 +31,20 @@ class UsuarioController extends Controller
             ? $request->query('situacao')
             : 'ativos';
 
-        $usuarios = Usuario::query()
+        $perfil = array_key_exists($request->query('perfil'), Perfis::NOMES) ? $request->query('perfil') : '';
+
+        $usuarios = Usuario::with('perfis')
             ->when($situacao !== 'todos', fn ($q) => $q->where('ativo', $situacao === 'ativos'))
             ->when($busca !== '', function ($q) use ($busca) {
                 $termo = '%'.mb_strtolower($busca).'%';
                 $q->where(fn ($q) => $q->whereRaw('LOWER(nome) LIKE ?', [$termo])->orWhere('email', 'like', $termo));
             })
+            ->when($perfil, fn ($q) => $q->whereHas('perfis', fn ($q) => $q->where('perfil', $perfil)))
             ->orderByNome()
             ->paginate(20)
             ->withQueryString();
 
-        return view('usuarios.index', compact('usuarios', 'busca', 'situacao'));
+        return view('usuarios.index', compact('usuarios', 'busca', 'situacao', 'perfil'));
     }
 
     public function create(): View
@@ -53,7 +57,8 @@ class UsuarioController extends Controller
     {
         $usuario = DB::transaction(function () use ($request) {
             // Senha aleatória que ninguém conhece: o acesso só começa após o usuário criar a dele.
-            $usuario = Usuario::create([...$request->validated(), 'senha' => Str::random(40)]);
+            $usuario = Usuario::create([...$request->safe()->only(['nome', 'email']), 'senha' => Str::random(40)]);
+            $usuario->definirPerfis($request->validated('perfis'));
             $this->auditoria->registrar(self::ENTIDADE, $usuario->id, Auditoria::INCLUSAO, [], $this->valores($usuario), self::CAMPOS_AUDITADOS);
 
             return $usuario;
@@ -73,9 +78,15 @@ class UsuarioController extends Controller
 
     public function update(UsuarioRequest $request, Usuario $usuario): RedirectResponse
     {
-        DB::transaction(function () use ($request, $usuario) {
+        $perfis = Perfis::normalizar($request->validated('perfis'));
+        if ($erro = $this->impedimentoPerfis($request->user(), $usuario, $perfis)) {
+            return back()->withInput()->withErrors(['perfis' => $erro]);
+        }
+
+        DB::transaction(function () use ($request, $usuario, $perfis) {
             $antes = $this->valores($usuario);
-            $usuario->update($request->validated());
+            $usuario->update($request->safe()->only(['nome', 'email']));
+            $usuario->definirPerfis($perfis);
             $this->auditoria->registrar(self::ENTIDADE, $usuario->id, Auditoria::ALTERACAO, $antes, $this->valores($usuario), self::CAMPOS_AUDITADOS);
         });
 
@@ -91,6 +102,9 @@ class UsuarioController extends Controller
         }
         if ($usuario->ativo === $ativo) {
             return back();
+        }
+        if (! $ativo && $this->ultimoAdministrador($usuario)) {
+            return back()->with('erro', 'Este é o último administrador ativo e não pode ser inativado.');
         }
 
         DB::transaction(function () use ($usuario, $ativo) {
@@ -116,8 +130,35 @@ class UsuarioController extends Controller
         return view('usuarios.historico', compact('usuario', 'registros'));
     }
 
+    /**
+     * RN24: ninguém altera os próprios perfis, e o último administrador ativo não perde o perfil Administrador.
+     *
+     * @param  list<string>  $perfis
+     */
+    private function impedimentoPerfis(Usuario $responsavel, Usuario $usuario, array $perfis): ?string
+    {
+        if ($perfis === $usuario->listaPerfis()) {
+            return null;
+        }
+        if ($usuario->is($responsavel)) {
+            return 'Você não pode alterar os próprios perfis. Peça a outro administrador.';
+        }
+        if (! in_array(Perfis::ADMINISTRADOR, $perfis, true) && $this->ultimoAdministrador($usuario)) {
+            return 'Este é o último administrador ativo: o perfil Administrador não pode ser retirado.';
+        }
+
+        return null;
+    }
+
+    /** RN24: deve existir sempre ao menos um usuário ativo com perfil Administrador. */
+    private function ultimoAdministrador(Usuario $usuario): bool
+    {
+        return $usuario->ativo && $usuario->temPerfil(Perfis::ADMINISTRADOR)
+            && ! Usuario::ativosComPerfil(Perfis::ADMINISTRADOR)->whereKeyNot($usuario->id)->exists();
+    }
+
     private function valores(Usuario $usuario): array
     {
-        return $usuario->only(self::CAMPOS_AUDITADOS);
+        return [...$usuario->only(['nome', 'email', 'ativo']), 'perfis' => $usuario->nomesPerfis()];
     }
 }
