@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Configurações comerciais do orçamento (RF22). Existe uma única linha.
+ * Configurações comerciais do orçamento (RF22) e critérios de recebimento das amostras (RF35). Existe uma única linha.
  *
  * @property int $validade_dias
  * @property string $taxa_coleta
  * @property string $desconto_maximo
  * @property string|null $condicoes_comerciais
+ * @property int $prazo_recebimento_horas
+ * @property string $temperatura_maxima_recebimento
  */
 class Configuracao extends Model
 {
@@ -20,11 +22,13 @@ class Configuracao extends Model
 
     protected $table = 'configuracoes';
 
-    protected $fillable = ['validade_dias', 'taxa_coleta', 'desconto_maximo', 'condicoes_comerciais'];
+    protected $fillable = ['validade_dias', 'taxa_coleta', 'desconto_maximo', 'condicoes_comerciais',
+        'prazo_recebimento_horas', 'temperatura_maxima_recebimento'];
 
     protected function casts(): array
     {
-        return ['validade_dias' => 'integer', 'taxa_coleta' => 'decimal:2', 'desconto_maximo' => 'decimal:2'];
+        return ['validade_dias' => 'integer', 'taxa_coleta' => 'decimal:2', 'desconto_maximo' => 'decimal:2',
+            'prazo_recebimento_horas' => 'integer', 'temperatura_maxima_recebimento' => 'decimal:1'];
     }
 
     public static function atual(): self

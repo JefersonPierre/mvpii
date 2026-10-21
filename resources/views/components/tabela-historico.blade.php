@@ -28,6 +28,7 @@
             'preco', 'taxa_coleta', 'valor_total' => \App\Support\Numero::moeda($v),
             'desconto_maximo', 'desconto_percentual' => \App\Support\Numero::decimal($v).'%',
             'limite_quantificacao', 'latitude', 'longitude' => \App\Support\Numero::decimal($v),
+            'temperatura_maxima_recebimento', 'temperatura_coleta', 'temperatura_recebimento' => \App\Support\Numero::decimal($v).' °C',
             'inicio_vigencia', 'fim_vigencia' => \Illuminate\Support\Carbon::parse($v)->format('d/m/Y'),
             default => $v,
         };
