@@ -15,6 +15,7 @@ use App\Http\Controllers\OrcamentoController;
 use App\Http\Controllers\PacoteController;
 use App\Http\Controllers\ParametroController;
 use App\Http\Controllers\PontoColetaController;
+use App\Http\Controllers\RecebimentoController;
 use App\Http\Controllers\RegistroColetaController;
 use App\Http\Controllers\RespostaOrcamentoController;
 use App\Http\Controllers\TipoAmostraController;
@@ -134,6 +135,12 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
     Route::middleware('can:coletas.registrar')->group(function () {
         Route::get('/coletas/{coleta}/registro', [RegistroColetaController::class, 'create'])->name('coletas.registro');
         Route::post('/coletas/{coleta}/registro', [RegistroColetaController::class, 'store']);
+    });
+
+    // MOD09 – Recebimento das amostras no laboratório (RF34): Analista ou Administrador, com separação de funções (RN34)
+    Route::middleware('can:amostras.receber')->group(function () {
+        Route::get('/amostras/receber', [RecebimentoController::class, 'create'])->name('amostras.receber');
+        Route::post('/amostras/receber', [RecebimentoController::class, 'store']);
     });
 
     // MOD05 – Configurações do orçamento (RF22) e critérios de recebimento (RF35)
