@@ -7,3 +7,5 @@ import './limite-form';
 import './orcamento-form';
 import './coleta-form';
 import './recebimento-form';
+import './mapa';
+import './resultados-form';

@@ -26,4 +26,7 @@ return [
     // UC03 3a: preenche o endereço pelo CEP usando o ViaCEP (serviço externo e opcional).
     'consulta_cep' => (bool) env('CEP_CONSULTA', true),
 
+    // RN49: busca as coordenadas pelo endereço com o Nominatim (OpenStreetMap), serviço externo e opcional.
+    'geocodificacao' => (bool) env('GEOCODIFICACAO', true),
+
 ];

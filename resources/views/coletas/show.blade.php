@@ -26,6 +26,9 @@
                 </p>
             </div>
             <div class="flex flex-wrap gap-2">
+                @can('coletas.roteiro')
+                    <a href="{{ route('coletas.roteiro', ['coletor' => $coleta->coletor_id, 'data' => $coleta->data->toDateString()]) }}" class="botao botao-secundario">Roteiro do dia</a>
+                @endcan
                 <a href="{{ route('coletas.ficha', $coleta) }}" target="_blank" class="botao botao-secundario">Imprimir ficha de coleta</a>
                 @if ($coleta->podeRegistrar() && Gate::allows('registrar', $coleta))
                     <a href="{{ route('coletas.registro', $coleta) }}" class="botao botao-primario">Registrar coleta</a>
@@ -84,6 +87,35 @@
                         {{ $coleta->registradaPor->nome }}
                         @if ($coleta->data_hora_coleta) · coletada em {{ $coleta->data_hora_coleta->format('d/m/Y H:i') }} @endif
                         @if ($coleta->condicoes_tempo) · {{ $coleta->condicoes_tempo }} @endif
+                    </dd>
+                </div>
+                {{-- RN41 / RN44: origem do registro e localização da coleta --}}
+                <div>
+                    <dt class="text-slate-500">Origem do registro</dt>
+                    <dd>
+                        {{ $coleta->nomeOrigemRegistro() ?? 'Computador' }}
+                        @if ($coleta->registro_recebido_em && $coleta->origem_registro !== 'COMPUTADOR') · recebido no servidor em {{ $coleta->registro_recebido_em->format('d/m/Y H:i') }} @endif
+                    </dd>
+                </div>
+                @if ($coleta->latitude_coleta !== null)
+                    <div>
+                        <dt class="text-slate-500">Localização da coleta</dt>
+                        <dd>
+                            <a href="https://www.openstreetmap.org/?mlat={{ $coleta->latitude_coleta }}&mlon={{ $coleta->longitude_coleta }}#map=17/{{ $coleta->latitude_coleta }}/{{ $coleta->longitude_coleta }}" target="_blank" rel="noopener" class="font-mono text-teal-700 hover:underline">{{ $coleta->latitude_coleta }}, {{ $coleta->longitude_coleta }}</a>
+                            @if ($coleta->distancia_ponto_metros !== null) · {{ $coleta->distancia_ponto_metros }} m do ponto @endif
+                            @if ($coleta->conferir_localizacao)<span class="selo bg-amber-100 text-amber-800">Conferir: a mais de {{ Coleta::DISTANCIA_MAXIMA_METROS }} m do ponto</span>@endif
+                        </dd>
+                    </div>
+                @endif
+            @endif
+            @if ($conflitos->isNotEmpty())
+                <div class="md:col-span-2">
+                    <dt class="text-slate-500">Registros do celular com conflito</dt>
+                    <dd class="space-y-1">
+                        @foreach ($conflitos as $c)
+                            <div>{{ $c->recebida_em->format('d/m/Y H:i') }} · {{ $c->usuario->nome }} · {{ $c->nomeSituacao() }}
+                                @can('coletas.conflitos')<a href="{{ route('conflitos.show', $c) }}" class="text-teal-700 hover:underline">Abrir</a>@endcan</div>
+                        @endforeach
                     </dd>
                 </div>
             @endif

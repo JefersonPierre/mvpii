@@ -5,6 +5,9 @@
 @if (session('erro'))
     <div class="alerta alerta-erro" role="alert">{{ session('erro') }}</div>
 @endif
+@if (session('aviso'))
+    <div class="alerta border-amber-200 bg-amber-50 text-amber-800" role="alert">{{ session('aviso') }}</div>
+@endif
 @if (session('link_local'))
     <div class="alerta alerta-info">
         <strong>Ambiente de desenvolvimento:</strong> os e-mails não são enviados de verdade.

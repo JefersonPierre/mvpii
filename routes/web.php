@@ -5,11 +5,16 @@ use App\Http\Controllers\AmostraController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\NovaSenhaController;
 use App\Http\Controllers\Auth\RecuperarSenhaController;
+use App\Http\Controllers\CampoController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ColetaController;
 use App\Http\Controllers\ConfiguracaoController;
+use App\Http\Controllers\ConflitoController;
+use App\Http\Controllers\DispositivoController;
 use App\Http\Controllers\EnvioOrcamentoController;
+use App\Http\Controllers\FotoAmostraController;
 use App\Http\Controllers\InicioController;
+use App\Http\Controllers\LaudoController;
 use App\Http\Controllers\LegislacaoController;
 use App\Http\Controllers\LimiteController;
 use App\Http\Controllers\OrcamentoController;
@@ -19,8 +24,12 @@ use App\Http\Controllers\PontoColetaController;
 use App\Http\Controllers\RecebimentoController;
 use App\Http\Controllers\RegistroColetaController;
 use App\Http\Controllers\RespostaOrcamentoController;
+use App\Http\Controllers\ResultadoController;
+use App\Http\Controllers\RoteiroController;
+use App\Http\Controllers\ServiceWorkerController;
 use App\Http\Controllers\TipoAmostraController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\VerificacaoLaudoController;
 use App\Http\Middleware\UsuarioAtivo;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +45,12 @@ Route::middleware('guest')->group(function () {
 Route::get('/nova-senha', [NovaSenhaController::class, 'create'])->name('nova-senha');
 Route::post('/nova-senha', [NovaSenhaController::class, 'store']);
 
+// RF55 / RN57: verificação pública do laudo pelo código (QR Code impresso no laudo), sem login.
+Route::get('/verificar-laudo/{codigo?}', VerificacaoLaudoController::class)->name('laudos.verificar')->middleware('throttle:30,1');
+
+// RF38: service worker do aplicativo instalado no celular (PWA). Fica na raiz para valer para todo o sistema.
+Route::get('/sw.js', ServiceWorkerController::class)->name('service-worker');
+
 Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
     Route::post('/sair', [LoginController::class, 'destroy'])->name('sair');
 
@@ -45,6 +60,7 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
 
     // MOD01 – Usuários (RF03) e MOD07 – Perfis (RF25)
     Route::middleware('can:usuarios')->group(function () {
+        Route::post('/usuarios/{usuario}/dispositivos/{dispositivo}/revogar', [DispositivoController::class, 'revogar'])->name('usuarios.dispositivos.revogar'); // RNF16
         Route::get('/usuarios/{usuario}/historico', [UsuarioController::class, 'historico'])->name('usuarios.historico');
         Route::patch('/usuarios/{usuario}/situacao', [UsuarioController::class, 'situacao'])->name('usuarios.situacao');
         Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy'])
@@ -125,6 +141,24 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
         Route::post('/coletas/{coleta}/cancelar', [ColetaController::class, 'cancelar'])->name('coletas.cancelar');
     });
 
+    // MOD11 – Roteiro das coletas do dia (RF44–RF46); o coletor vê só o próprio (RN36)
+    Route::get('/coletas/roteiro', [RoteiroController::class, 'index'])->name('coletas.roteiro')->middleware('can:coletas.roteiro');
+    Route::post('/coletas/{coleta}/ordem', [RoteiroController::class, 'mover'])->name('coletas.ordem')->middleware('can:coletas.roteiro.ordenar');
+
+    // MOD10 – Conflitos de sincronização (RF42, RN43)
+    Route::middleware('can:coletas.conflitos')->group(function () {
+        Route::get('/coletas/conflitos', [ConflitoController::class, 'index'])->name('conflitos.index');
+        Route::get('/coletas/conflitos/{sincronizacao}', [ConflitoController::class, 'show'])->name('conflitos.show');
+        Route::post('/coletas/conflitos/{sincronizacao}/aceitar', [ConflitoController::class, 'aceitar'])->name('conflitos.aceitar');
+        Route::post('/coletas/conflitos/{sincronizacao}/descartar', [ConflitoController::class, 'descartar'])->name('conflitos.descartar');
+    });
+
+    // MOD10 – Coletas do dia no celular (RF38–RF41): a tela abre sem conexão depois de instalada
+    Route::middleware('can:coletas.registrar')->group(function () {
+        Route::get('/campo', [CampoController::class, 'index'])->name('campo');
+        Route::post('/campo/conectar', [CampoController::class, 'conectar'])->name('campo.conectar');
+    });
+
     // MOD08 – Agenda e ficha de coleta (RF31, RF32); o coletor vê só as próprias (ColetaPolicy)
     Route::middleware('can:coletas.agenda')->group(function () {
         Route::get('/coletas', AgendaController::class)->name('coletas.index');
@@ -148,9 +182,36 @@ Route::middleware(['auth', UsuarioAtivo::class])->group(function () {
     Route::middleware('can:amostras.consultar')->group(function () {
         Route::get('/amostras', [AmostraController::class, 'index'])->name('amostras.index');
         Route::get('/amostras/{amostra:codigo}', [AmostraController::class, 'show'])->name('amostras.show');
+        Route::get('/fotos/{foto}', FotoAmostraController::class)->name('fotos.show'); // RN45
     });
 
-    // MOD05 – Configurações do orçamento (RF22) e critérios de recebimento (RF35)
+    // MOD12 – Resultados (RF48–RF51): lançamento pelo Analista e revisão por outro usuário (RN53)
+    Route::get('/resultados', [ResultadoController::class, 'index'])->name('resultados.index')->middleware('can:resultados.lancar');
+    Route::middleware('can:resultados.lancar')->group(function () {
+        Route::get('/amostras/{amostra:codigo}/resultados', [ResultadoController::class, 'edit'])->name('resultados.edit');
+        Route::put('/amostras/{amostra:codigo}/resultados', [ResultadoController::class, 'update'])->name('resultados.update');
+    });
+    Route::middleware('can:resultados.liberar')->group(function () {
+        Route::get('/amostras/{amostra:codigo}/revisao', [ResultadoController::class, 'revisao'])->name('resultados.revisao');
+        Route::post('/amostras/{amostra:codigo}/liberar', [ResultadoController::class, 'liberar'])->name('resultados.liberar');
+        Route::post('/amostras/{amostra:codigo}/devolver', [ResultadoController::class, 'devolver'])->name('resultados.devolver');
+    });
+
+    // MOD13 – Laudos (RF52–RF54, RF57)
+    Route::middleware('can:laudos.emitir')->group(function () {
+        Route::get('/laudos/emitir', [LaudoController::class, 'aEmitir'])->name('laudos.emitir');
+        Route::post('/laudos', [LaudoController::class, 'store'])->name('laudos.store');
+        Route::get('/amostras/{amostra:codigo}/laudo/previa', [LaudoController::class, 'previa'])->name('laudos.previa');
+        Route::post('/laudos/{laudo}/retificacao', [LaudoController::class, 'retificar'])->name('laudos.retificar');
+    });
+    Route::post('/laudos/{laudo}/envio', [LaudoController::class, 'enviar'])->name('laudos.enviar')->middleware('can:laudos.enviar');
+    Route::middleware('can:laudos.consultar')->group(function () {
+        Route::get('/laudos', [LaudoController::class, 'index'])->name('laudos.index');
+        Route::get('/laudos/{laudo}', [LaudoController::class, 'show'])->name('laudos.show');
+        Route::get('/laudos/{laudo}/pdf', [LaudoController::class, 'pdf'])->name('laudos.pdf');
+    });
+
+    // MOD05 – Configurações do orçamento (RF22), critérios de recebimento (RF35) e MOD13 – dados do laboratório (RF56)
     Route::middleware('can:configuracoes')->group(function () {
         Route::get('/configuracoes', [ConfiguracaoController::class, 'edit'])->name('configuracoes');
         Route::put('/configuracoes', [ConfiguracaoController::class, 'update']);

@@ -54,6 +54,8 @@ class ColetasExemploSeeder extends Seeder
             'cidade' => 'Campinas',
             'uf' => 'SP',
             'referencia' => 'Torneira ao lado da guarita',
+            'latitude' => -22.9038,
+            'longitude' => -47.0595,
         ]);
         $reservatorio = $cliente->pontosColeta()->where('identificacao', 'Reservatório superior – Bloco A')->firstOrFail();
 

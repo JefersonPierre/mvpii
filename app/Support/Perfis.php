@@ -22,9 +22,9 @@ final class Perfis
 
     public const DESCRICOES = [
         self::ADMINISTRADOR => 'Acesso a todas as funcionalidades, inclusive usuários e configurações.',
-        self::RECEPCAO => 'Clientes, orçamentos, agendamento de coletas e consulta de amostras.',
-        self::COLETOR => 'Agenda e registro somente das coletas atribuídas a ele.',
-        self::ANALISTA => 'Recebimento das amostras no laboratório e consulta da agenda e das amostras.',
+        self::RECEPCAO => 'Clientes, orçamentos, agendamento e roteiro das coletas, conflitos de sincronização, envio e consulta de laudos.',
+        self::COLETOR => 'Agenda, roteiro e registro (também pelo celular) somente das coletas atribuídas a ele.',
+        self::ANALISTA => 'Recebimento das amostras, lançamento e revisão de resultados e consulta de laudos.',
     ];
 
     /**
@@ -45,6 +45,15 @@ final class Perfis
         'amostras.receber' => [self::ADMINISTRADOR, self::ANALISTA],
         'amostras.consultar' => [self::ADMINISTRADOR, self::RECEPCAO, self::COLETOR, self::ANALISTA],
         'historico' => [self::ADMINISTRADOR, self::RECEPCAO],
+        // Entregável 3 (seção 7.4, linhas acrescentadas)
+        'coletas.roteiro' => [self::ADMINISTRADOR, self::RECEPCAO, self::COLETOR, self::ANALISTA],
+        'coletas.roteiro.ordenar' => [self::ADMINISTRADOR, self::RECEPCAO, self::COLETOR],
+        'coletas.conflitos' => [self::ADMINISTRADOR, self::RECEPCAO],
+        'resultados.lancar' => [self::ADMINISTRADOR, self::ANALISTA],
+        'resultados.liberar' => [self::ADMINISTRADOR, self::ANALISTA], // com separação de funções (RN53)
+        'laudos.emitir' => [self::ADMINISTRADOR],
+        'laudos.enviar' => [self::ADMINISTRADOR, self::RECEPCAO],
+        'laudos.consultar' => [self::ADMINISTRADOR, self::RECEPCAO, self::ANALISTA],
     ];
 
     /** Perfis que veem todas as coletas e amostras; quem só tem o perfil Coletor vê apenas as próprias (RN36). */
