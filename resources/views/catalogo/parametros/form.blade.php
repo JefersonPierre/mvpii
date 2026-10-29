@@ -56,6 +56,14 @@
                        @class(['campo font-mono', 'campo-erro' => $errors->has('preco')])>
                 @error('preco') <p class="erro">{{ $message }}</p> @enderror
             </div>
+            {{-- RF43 / RN46 --}}
+            <div class="md:col-span-2">
+                <input type="hidden" name="medido_em_campo" value="0">
+                <label class="flex items-start gap-2 text-sm">
+                    <input type="checkbox" name="medido_em_campo" value="1" class="mt-0.5" @checked(old('medido_em_campo', $parametro->medido_em_campo))>
+                    <span><strong>Medido em campo</strong> – o coletor informa o valor no registro da coleta (ex.: pH, cloro residual livre, temperatura); o analista apenas confere.</span>
+                </label>
+            </div>
         </div>
 
         <div class="flex justify-end gap-2">

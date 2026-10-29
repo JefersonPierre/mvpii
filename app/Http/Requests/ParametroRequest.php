@@ -16,6 +16,7 @@ class ParametroRequest extends FormRequest
         $this->merge([
             'preco' => Numero::ler($this->input('preco')),
             'limite_quantificacao' => Numero::ler($this->input('limite_quantificacao')),
+            'medido_em_campo' => $this->boolean('medido_em_campo'),
         ]);
     }
 
@@ -29,6 +30,7 @@ class ParametroRequest extends FormRequest
             'limite_quantificacao' => ['nullable', 'numeric', 'min:0'],
             'categoria' => ['required', Rule::in(array_keys(Parametro::CATEGORIAS))],
             'preco' => ['required', 'numeric', 'min:0', 'max:99999999'],
+            'medido_em_campo' => ['boolean'], // RN46
         ];
     }
 

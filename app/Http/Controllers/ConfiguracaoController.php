@@ -8,13 +8,16 @@ use App\Services\CadastroComHistorico;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-// UC12 – Configurar parâmetros comerciais (RF22, RN08, RN14) e UC19 – critérios de recebimento (RF35, RN35)
+// UC12 – Configurar parâmetros comerciais (RF22, RN08, RN14), UC19 – critérios de recebimento (RF35, RN35) e
+// UC29 – dados do laboratório e do laudo (RF56)
 class ConfiguracaoController extends Controller
 {
     private const ENTIDADE = 'CONFIGURACOES';
 
     private const CAMPOS_AUDITADOS = ['validade_dias', 'taxa_coleta', 'desconto_maximo', 'condicoes_comerciais',
-        'prazo_recebimento_horas', 'temperatura_maxima_recebimento'];
+        'prazo_recebimento_horas', 'temperatura_maxima_recebimento', 'laboratorio_nome', 'laboratorio_endereco',
+        'laboratorio_telefone', 'laboratorio_latitude', 'laboratorio_longitude', 'responsavel_tecnico', 'registro_profissional',
+        'observacoes_laudo'];
 
     public function __construct(private readonly CadastroComHistorico $cadastro) {}
 
@@ -31,6 +34,6 @@ class ConfiguracaoController extends Controller
     {
         $this->cadastro->salvar(Configuracao::atual(), $request->validated(), self::ENTIDADE, self::CAMPOS_AUDITADOS);
 
-        return redirect()->route('configuracoes')->with('sucesso', 'Configurações salvas. Elas valem para os próximos orçamentos e recebimentos.');
+        return redirect()->route('configuracoes')->with('sucesso', 'Configurações salvas. Elas valem para os próximos orçamentos, recebimentos, laudos e rotas.');
     }
 }

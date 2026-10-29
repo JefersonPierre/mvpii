@@ -63,4 +63,24 @@
             <button type="submit" class="botao botao-primario">{{ $novo ? 'Cadastrar' : 'Salvar' }}</button>
         </div>
     </form>
+
+    @php($aparelhos = $novo ? collect() : $usuario->dispositivos()->whereNull('revogado_em')->where('expira_em', '>', now())->get())
+    @if ($aparelhos->isNotEmpty())
+        {{-- RNF16: aparelhos com acesso ao aplicativo de campo --}}
+        <div class="cartao max-w-lg space-y-3">
+            <h2 class="text-lg font-semibold">Aparelhos conectados</h2>
+            <ul class="divide-y divide-slate-100 text-sm">
+                @foreach ($aparelhos as $aparelho)
+                    <li class="flex flex-wrap items-center justify-between gap-2 py-2">
+                        <span>{{ $aparelho->nome }} · acesso até {{ $aparelho->expira_em->format('d/m/Y H:i') }}
+                            @if ($aparelho->ultimo_uso_em) · último uso {{ $aparelho->ultimo_uso_em->format('d/m/Y H:i') }} @endif</span>
+                        <form method="POST" action="{{ route('usuarios.dispositivos.revogar', [$usuario, $aparelho]) }}" onsubmit="return confirm('Revogar o acesso deste aparelho?')">
+                            @csrf
+                            <button type="submit" class="botao botao-secundario botao-pequeno">Revogar acesso</button>
+                        </form>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 </x-layout>

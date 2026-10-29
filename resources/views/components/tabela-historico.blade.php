@@ -12,6 +12,7 @@
     $booleanos = [
         'ativo' => ['Ativo', 'Inativo'],
         'interessado' => ['Interessado', 'Cliente'],
+        'medido_em_campo' => ['Sim', 'Não'],
     ];
     $valor = function (?string $campo, ?string $v) use ($booleanos) {
         if ($v === null) {
@@ -27,7 +28,7 @@
             'categoria' => \App\Models\Parametro::CATEGORIAS[$v] ?? $v,
             'preco', 'taxa_coleta', 'valor_total' => \App\Support\Numero::moeda($v),
             'desconto_maximo', 'desconto_percentual' => \App\Support\Numero::decimal($v).'%',
-            'limite_quantificacao', 'latitude', 'longitude' => \App\Support\Numero::decimal($v),
+            'limite_quantificacao', 'latitude', 'longitude', 'laboratorio_latitude', 'laboratorio_longitude' => \App\Support\Numero::decimal($v),
             'temperatura_maxima_recebimento', 'temperatura_coleta', 'temperatura_recebimento' => \App\Support\Numero::decimal($v).' °C',
             'inicio_vigencia', 'fim_vigencia' => \Illuminate\Support\Carbon::parse($v)->format('d/m/Y'),
             default => $v,
