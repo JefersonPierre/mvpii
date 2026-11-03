@@ -47,11 +47,6 @@ class PontoColeta extends Model
         return $this->belongsTo(TipoAmostra::class);
     }
 
-    public function temCoordenadas(): bool
-    {
-        return $this->latitude !== null && $this->longitude !== null;
-    }
-
     /** Link para ver as coordenadas no mapa, quando informadas. */
     public function linkMapa(): ?string
     {

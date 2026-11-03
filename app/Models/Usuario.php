@@ -61,12 +61,6 @@ class Usuario extends Authenticatable
         return $this->hasMany(TokenSenha::class);
     }
 
-    /** RNF16: aparelhos conectados ao aplicativo de campo. */
-    public function dispositivos(): HasMany
-    {
-        return $this->hasMany(Dispositivo::class)->orderByDesc('id');
-    }
-
     public function perfis(): HasMany
     {
         return $this->hasMany(UsuarioPerfil::class);

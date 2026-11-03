@@ -31,8 +31,7 @@ class DatabaseSeeder extends Seeder
         // na demonstração.
         // Em produção, o laboratório cadastra os seus.
         if (app()->environment('local') || config('laboratorio.demonstracao')) {
-            $this->call([CatalogoExemploSeeder::class, AtendimentoExemploSeeder::class, ColetasExemploSeeder::class,
-                ResultadosExemploSeeder::class]);
+            $this->call([CatalogoExemploSeeder::class, AtendimentoExemploSeeder::class, ColetasExemploSeeder::class]);
         }
     }
 }
