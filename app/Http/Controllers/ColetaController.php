@@ -52,9 +52,8 @@ class ColetaController extends Controller
         $coleta->load(['orcamento.cliente.contatoPrincipal', 'coletor', 'criadoPor', 'registradaPor', 'amostras.pontoColeta',
             'amostras.itens']);
         $registros = Gate::allows('historico') ? $historico->historico(Rastreabilidade::COLETA, $coleta->id) : null;
-        $conflitos = $coleta->sincronizacoes()->with('usuario')->whereNotNull('motivo_conflito')->get();
 
-        return view('coletas.show', compact('coleta', 'registros', 'conflitos'));
+        return view('coletas.show', compact('coleta', 'registros'));
     }
 
     /** RF32: ficha de coleta em PDF para o coletor levar a campo (uma página por ponto de coleta). */

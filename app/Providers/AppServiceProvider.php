@@ -47,11 +47,8 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(function (ConnectionEstablished $evento) use ($collator) {
             $pdo = $evento->connection->getPdo();
-            $comparar = fn ($a, $b) => $collator->compare((string) $a, (string) $b);
             if ($pdo instanceof Sqlite) {
-                $pdo->createCollation('PTBR', $comparar);
-            } elseif ($evento->connection->getDriverName() === 'sqlite') {
-                $pdo->sqliteCreateCollation('PTBR', $comparar); // PHP 8.3
+                $pdo->createCollation('PTBR', fn ($a, $b) => $collator->compare((string) $a, (string) $b));
             }
         });
 

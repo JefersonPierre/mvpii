@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PontoColetaRequest;
 use App\Models\Cliente;
-use App\Models\Coleta;
 use App\Models\PontoColeta;
 use App\Models\TipoAmostra;
 use App\Services\CadastroPontos;
@@ -66,14 +65,7 @@ class PontoColetaController extends Controller
             ->where(fn ($q) => $q->where('ativo', true)->orWhere('id', $ponto->tipo_amostra_id))
             ->orderByNome()->get();
 
-        // RN49: ponto sem coordenadas com localização registrada na coleta – a localização é sugerida.
-        $sugestao = $ponto->exists && ! $ponto->temCoordenadas()
-            ? Coleta::whereNotNull('latitude_coleta')->where('conferir_localizacao', false)
-                ->whereHas('amostras', fn ($q) => $q->where('ponto_coleta_id', $ponto->id))
-                ->orderByDesc('data_hora_coleta')->first()
-            : null;
-
-        return view('pontos.form', compact('cliente', 'ponto', 'tipos', 'sugestao'));
+        return view('pontos.form', compact('cliente', 'ponto', 'tipos'));
     }
 
     /** RN04: cliente inativo não recebe novos pontos de coleta. */
