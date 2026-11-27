@@ -14,7 +14,7 @@ class ParametroController extends Controller
 {
     private const ENTIDADE = 'PARAMETRO';
 
-    private const CAMPOS_AUDITADOS = ['nome', 'unidade', 'metodo', 'limite_quantificacao', 'categoria', 'preco', 'ativo'];
+    private const CAMPOS_AUDITADOS = ['nome', 'unidade', 'metodo', 'limite_quantificacao', 'categoria', 'preco', 'medido_em_campo', 'ativo'];
 
     public function __construct(private readonly CadastroComHistorico $cadastro) {}
 
@@ -77,7 +77,7 @@ class ParametroController extends Controller
             'titulo' => $parametro->nome,
             'voltar' => [route('catalogo.parametros.index'), 'Parâmetros'],
             'registros' => $registros,
-            'campos' => ['nome' => 'Nome', 'unidade' => 'Unidade', 'metodo' => 'Método', 'limite_quantificacao' => 'Limite de quantificação',
+            'campos' => ['nome' => 'Nome', 'unidade' => 'Unidade', 'metodo' => 'Método', 'limite_quantificacao' => 'Limite de quantificação', 'medido_em_campo' => 'Medido em campo',
                 'categoria' => 'Categoria', 'preco' => 'Preço', 'ativo' => 'Situação'],
         ]);
     }

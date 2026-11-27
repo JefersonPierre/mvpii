@@ -52,6 +52,8 @@ class CatalogoExemploSeeder extends Seeder
             'Sulfeto' => ['mg/L', 'SMWW 4500-S2 D – Azul de metileno', self::FQ, 45],
         ])->map(fn ($d, $nome) => Parametro::firstOrCreate(['nome' => $nome],
             ['unidade' => $d[0], 'metodo' => $d[1], 'categoria' => $d[2], 'preco' => $d[3]]));
+        // RN46: medidos pelo coletor no local, informados no registro da coleta.
+        Parametro::whereIn('nome', ['pH', 'Cloro residual livre', 'Temperatura'])->update(['medido_em_campo' => true]);
 
         $this->pacote('Potabilidade básica', $agua, 150,
             [$p['pH'], $p['Turbidez'], $p['Cor aparente'], $p['Cloro residual livre'], $p['Coliformes totais'], $p['Escherichia coli']]);

@@ -41,7 +41,7 @@ class AgendamentoColetas
             $porSituacao = collect($contagens->get($item->id))->pluck('total', 'situacao')->map(fn ($n) => (int) $n);
             $agendadas = $porSituacao->get(Amostra::PREVISTA, 0);
             $coletadas = $porSituacao->get(Amostra::COLETADA, 0);
-            $recebidas = $porSituacao->get(Amostra::RECEBIDA, 0);
+            $recebidas = $porSituacao->only(Amostra::NO_LABORATORIO)->sum(); // recebidas, em análise e com laudo
 
             return [$item->id => [
                 'item' => $item,
@@ -148,7 +148,9 @@ class AgendamentoColetas
             $coleta->fill(collect($dados)->only(['coletor_id', 'data', 'periodo', 'horario', 'instrucoes'])->all());
             $coleta->forceFill(['situacao' => Coleta::AGENDADA, 'motivo' => $dados['motivo'],
                 'data_hora_coleta' => null, 'condicoes_tempo' => null, 'motivo_nao_realizada' => null,
-                'motivo_nao_realizada_detalhe' => null, 'registrada_por_id' => null])->save();
+                'motivo_nao_realizada_detalhe' => null, 'registrada_por_id' => null, 'ordem_visita' => null, // RN47: só naquele dia
+                'origem_registro' => null, 'registro_recebido_em' => null, 'latitude_coleta' => null, 'longitude_coleta' => null,
+                'distancia_ponto_metros' => null, 'conferir_localizacao' => false])->save();
             $coleta->unsetRelation('coletor');
             $this->rastreio->registrarColeta($coleta, Auditoria::ALTERACAO, $antes);
 
@@ -173,6 +175,31 @@ class AgendamentoColetas
             $coleta->amostras()->where('situacao', Amostra::PREVISTA)->get()
                 ->each(fn (Amostra $a) => $this->mudarAmostra($a, Amostra::CANCELADA));
         });
+    }
+
+    /**
+     * UC23 4b / RN43: ao aceitar um registro do celular em conflito, a coleta volta a ser do coletor, na data em que foi
+     * feita, e as amostras canceladas ou não coletadas do registro voltam a Previstas, se o orçamento tiver saldo (RN28).
+     *
+     * @param  iterable<Amostra>  $voltam
+     */
+    public function reabrirParaRegistro(Coleta $coleta, iterable $voltam, int $coletorId, string $data, string $motivo): void
+    {
+        $voltam = collect($voltam);
+        if ($voltam->isNotEmpty()) {
+            $this->validarSaldo($coleta->orcamento, $voltam->map(fn (Amostra $a) => $a->itens->pluck('id')->all()));
+        }
+        $antes = $this->rastreio->valoresColeta($coleta);
+        $coleta->forceFill(['situacao' => Coleta::AGENDADA, 'coletor_id' => $coletorId, 'data' => $data, 'motivo' => $motivo,
+            'data_hora_coleta' => null, 'condicoes_tempo' => null, 'motivo_nao_realizada' => null,
+            'motivo_nao_realizada_detalhe' => null, 'registrada_por_id' => null])->save();
+        $coleta->unsetRelation('coletor');
+        $this->rastreio->registrarColeta($coleta, Auditoria::ALTERACAO, $antes);
+
+        foreach ($voltam as $amostra) {
+            $this->mudarAmostra($amostra, Amostra::PREVISTA, ['motivo_nao_coleta' => null, 'observacoes_coleta' => null,
+                'coletada_por_id' => null]);
+        }
     }
 
     /** Muda a situação da amostra (e outros campos) registrando no histórico. */

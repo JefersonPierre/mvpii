@@ -20,11 +20,13 @@ class Rastreabilidade
     public const AMOSTRA = 'AMOSTRA';
 
     public const CAMPOS_COLETA = ['coletor', 'data', 'periodo', 'horario', 'instrucoes', 'situacao', 'motivo',
-        'data_hora_coleta', 'condicoes_tempo', 'motivo_nao_realizada', 'motivo_nao_realizada_detalhe'];
+        'data_hora_coleta', 'condicoes_tempo', 'motivo_nao_realizada', 'motivo_nao_realizada_detalhe', 'origem_registro',
+        'localizacao'];
 
     public const CAMPOS_AMOSTRA = ['codigo', 'ponto', 'itens', 'situacao', 'temperatura_coleta', 'observacoes_coleta',
         'motivo_nao_coleta', 'recebida_em', 'temperatura_recebimento', 'condicoes_frasco', 'fora_criterios',
-        'observacoes_recebimento', 'motivo_rejeicao'];
+        'observacoes_recebimento', 'motivo_rejeicao', 'legislacao', 'conformidade', 'motivo_devolucao', 'motivo_retificacao',
+        'laudo'];
 
     /** Nomes dos campos nas telas de histórico. */
     public const NOMES_CAMPOS = [
@@ -37,6 +39,9 @@ class Rastreabilidade
         'recebida_em' => 'Data e hora do recebimento', 'temperatura_recebimento' => 'Temperatura no recebimento',
         'condicoes_frasco' => 'Condições do frasco', 'fora_criterios' => 'Fora dos critérios',
         'observacoes_recebimento' => 'Observações do recebimento', 'motivo_rejeicao' => 'Motivo da rejeição',
+        'origem_registro' => 'Origem do registro', 'localizacao' => 'Localização da coleta',
+        'legislacao' => 'Legislação de referência', 'conformidade' => 'Conformidade', 'motivo_devolucao' => 'Motivo da devolução',
+        'motivo_retificacao' => 'Motivo da retificação', 'laudo' => 'Laudo',
     ];
 
     public function __construct(private readonly Auditoria $auditoria) {}
@@ -68,13 +73,19 @@ class Rastreabilidade
             'condicoes_tempo' => $coleta->condicoes_tempo,
             'motivo_nao_realizada' => $coleta->nomeMotivoNaoRealizada(),
             'motivo_nao_realizada_detalhe' => $coleta->motivo_nao_realizada_detalhe,
+            'origem_registro' => $coleta->nomeOrigemRegistro(),
+            'localizacao' => $coleta->latitude_coleta !== null
+                ? $coleta->latitude_coleta.', '.$coleta->longitude_coleta
+                    .($coleta->distancia_ponto_metros !== null ? " ({$coleta->distancia_ponto_metros} m do ponto)" : '')
+                : null,
         ];
     }
 
     /** @return array<string, mixed> */
     public function valoresAmostra(Amostra $amostra): array
     {
-        $amostra->loadMissing(['pontoColeta', 'itens']);
+        $amostra->loadMissing(['pontoColeta', 'itens', 'legislacao']);
+        $laudo = $amostra->laudoVigente()->first();
         $condicoes = collect(Amostra::CONDICOES_FRASCO)
             ->filter(fn ($nome, $campo) => $amostra->{$campo} !== null)
             ->map(fn ($nome, $campo) => $nome.': '.($amostra->{$campo} ? 'sim' : 'não'))
@@ -94,11 +105,16 @@ class Rastreabilidade
             'fora_criterios' => $amostra->recebida_em ? ($amostra->fora_criterios ? 'Sim' : 'Não') : null,
             'observacoes_recebimento' => $amostra->observacoes_recebimento,
             'motivo_rejeicao' => $amostra->nomeMotivoRejeicao(),
+            'legislacao' => $amostra->legislacao?->nome,
+            'conformidade' => $amostra->nomeConformidade(),
+            'motivo_devolucao' => $amostra->motivo_devolucao,
+            'motivo_retificacao' => $amostra->motivo_retificacao,
+            'laudo' => $laudo ? $laudo->numeroComRevisao().' – '.$laudo->nomeConclusao() : null,
         ];
     }
 
     /**
-     * RF36: linha do tempo da amostra, do agendamento ao recebimento. Junta as mudanças da amostra e as da sua coleta
+     * RF36 / RF57: linha do tempo da amostra, do agendamento ao recebimento, aos resultados e ao laudo. Junta as mudanças da amostra e as da sua coleta
      * (agendamento, reagendamentos, cancelamento, coleta não realizada).
      *
      * @return Collection<int, array{titulo: string, data_hora: Carbon, usuario: string, detalhes: list<string>}>
@@ -155,6 +171,12 @@ class Rastreabilidade
             $detalhes = array_filter([
                 $titulo === 'Coletada' && $amostra->coleta->data_hora_coleta
                     ? 'Coleta em campo: '.$amostra->coleta->data_hora_coleta->format('d/m/Y H:i') : null,
+                $titulo === 'Coletada' && $amostra->coleta->origem_registro && $amostra->coleta->origem_registro !== 'COMPUTADOR'
+                    ? 'Registrada pelo '.mb_strtolower($amostra->coleta->nomeOrigemRegistro()) : null,
+                in_array($titulo, ['Em análise', 'Em revisão', 'Liberada'], true) ? $novo('conformidade') : null,
+                $titulo === 'Em análise' && $novo('motivo_devolucao') ? 'Devolvida para correção: '.$novo('motivo_devolucao') : null,
+                $titulo === 'Em análise' && $novo('motivo_retificacao') ? 'Retificação do laudo: '.$novo('motivo_retificacao') : null,
+                $titulo === 'Laudo emitido' ? $novo('laudo') : null,
                 $temperatura !== null ? Numero::decimal($temperatura).' °C' : null,
                 $novo('motivo_nao_coleta'),
                 $novo('motivo_rejeicao'),

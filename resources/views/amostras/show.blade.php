@@ -64,6 +64,75 @@
                     @endif
                 @endif
             </dl>
+
+            @if ($amostra->fotos->isNotEmpty())
+                <div class="space-y-2">
+                    <h2 class="font-semibold">Fotos da coleta</h2>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($amostra->fotos as $foto)
+                            <a href="{{ route('fotos.show', $foto) }}" target="_blank"><img src="{{ route('fotos.show', $foto) }}" alt="Foto da coleta" class="h-28 w-28 rounded border border-slate-200 object-cover"></a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            {{-- UC24–UC26: resultados, conformidade e laudos --}}
+            @if ($amostra->resultados->contains(fn ($r) => $r->temResultado()) || in_array($amostra->situacao, Amostra::RECEBEM_RESULTADOS, true))
+                <div class="space-y-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <h2 class="font-semibold">Resultados</h2>
+                        <div class="flex flex-wrap gap-2">
+                            @if ($amostra->conformidade)<x-selo-conformidade :valor="$amostra->conformidade" />@endif
+                            @if (in_array($amostra->situacao, Amostra::RECEBEM_RESULTADOS, true))
+                                @can('resultados.lancar')<a href="{{ route('resultados.edit', $amostra) }}" class="botao botao-secundario">Lançar resultados</a>@endcan
+                            @elseif ($amostra->situacao === Amostra::EM_REVISAO)
+                                @can('resultados.liberar')<a href="{{ route('resultados.revisao', $amostra) }}" class="botao botao-secundario">Revisar e liberar</a>@endcan
+                            @elseif ($amostra->situacao === Amostra::LIBERADA)
+                                @can('laudos.emitir')<a href="{{ route('laudos.emitir') }}" class="botao botao-secundario">Emitir laudo</a>@endcan
+                            @endif
+                        </div>
+                    </div>
+                    @if ($amostra->legislacao)
+                        <p class="text-sm text-slate-500">Legislação: {{ $amostra->legislacao->nome }}
+                            @if ($amostra->liberada_em) · liberada em {{ $amostra->liberada_em->format('d/m/Y H:i') }} por {{ $amostra->liberadaPor?->nome }} @endif</p>
+                    @endif
+                    @if ($amostra->motivo_devolucao && $amostra->situacao === Amostra::EM_ANALISE)
+                        <p class="text-sm text-amber-700">Devolvida para correção: {{ $amostra->motivo_devolucao }}</p>
+                    @endif
+                    @php($comResultado = $amostra->resultados->filter(fn ($r) => $r->temResultado()))
+                    @if ($comResultado->isNotEmpty())
+                        <div class="overflow-x-auto">
+                            <table class="tabela">
+                                <thead><tr><th>Parâmetro</th><th>Resultado</th><th>Limite</th><th>Situação</th></tr></thead>
+                                <tbody>
+                                    @foreach ($comResultado as $r)
+                                        <tr>
+                                            <td>{{ $r->parametro->nome }} @if ($r->origem === \App\Models\Resultado::CAMPO)<span class="selo bg-slate-100 text-slate-600">Campo</span>@endif</td>
+                                            <td>{{ $r->valorFormatado() }}</td>
+                                            <td>{{ $r->limiteFormatado() ?? '–' }}</td>
+                                            <td>{{ $r->nomeConformidade() ?? '–' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
+            @if ($amostra->laudos->isNotEmpty())
+                <div class="space-y-2">
+                    <h2 class="font-semibold">Laudos</h2>
+                    <ul class="space-y-1 text-sm">
+                        @foreach ($amostra->laudos as $laudo)
+                            <li>
+                                @can('laudos.consultar')<a href="{{ route('laudos.show', $laudo) }}" class="font-mono text-teal-700 hover:underline">{{ $laudo->numeroComRevisao() }}</a>@else<span class="font-mono">{{ $laudo->numeroComRevisao() }}</span>@endcan
+                                · {{ $laudo->emitido_em->format('d/m/Y H:i') }} · {{ $laudo->situacao === \App\Models\Laudo::VIGENTE ? 'Vigente' : 'Substituído' }}
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
 
         {{-- RF36 / RNF12: cada etapa com usuário, data e hora --}}

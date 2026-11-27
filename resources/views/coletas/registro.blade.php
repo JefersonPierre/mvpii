@@ -79,6 +79,26 @@
                                     @if ($erro('observacoes')) <p class="erro">{{ $erro('observacoes') }}</p> @endif
                                 </td>
                             </tr>
+                            {{-- RF43 / RN46: medições de campo da amostra --}}
+                            @php($deCampo = $amostra->parametrosDeCampo())
+                            @if ($deCampo->isNotEmpty())
+                                <tr class="bg-teal-50/40">
+                                    <td></td>
+                                    <td colspan="5">
+                                        <div class="flex flex-wrap items-end gap-3">
+                                            <span class="text-xs font-medium text-teal-800">Medições de campo:</span>
+                                            @foreach ($deCampo as $p)
+                                                <label class="text-xs">
+                                                    <span class="block text-slate-600">{{ $p->nome }} ({{ $p->unidade }})</span>
+                                                    <input name="amostras[{{ $amostra->id }}][medicoes][{{ $p->id }}]" inputmode="decimal"
+                                                           value="{{ old("amostras.{$amostra->id}.medicoes.{$p->id}") }}" @class(['campo w-28 font-mono', 'campo-erro' => $errors->has("amostras.{$amostra->id}.medicoes.{$p->id}")])>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                        @if ($errors->has("amostras.{$amostra->id}.medicoes.*"))<p class="erro">Informe as medições em números, ex.: 7,2.</p>@endif
+                                    </td>
+                                </tr>
+                            @endif
                         @endforeach
                     </tbody>
                 </table>

@@ -52,6 +52,8 @@ class AtendimentoExemploSeeder extends Seeder
             'bairro' => 'Centro',
             'cidade' => 'Campinas',
             'uf' => 'SP',
+            'latitude' => -22.9036,
+            'longitude' => -47.0592,
         ]);
 
         // O seeder libera todos os campos; o orçamento passa pelo mesmo cadastro das telas, que conta com o $fillable.

@@ -34,6 +34,13 @@
                     <a href="{{ $link(['visao' => $valor]) }}" @class(['rounded px-3 py-1.5 text-sm', 'bg-teal-600 text-white' => $visao === $valor, 'text-slate-700 hover:bg-slate-50' => $visao !== $valor])>{{ $rotulo }}</a>
                 @endforeach
             </span>
+            @can('coletas.roteiro')
+                <a href="{{ route('coletas.roteiro', array_filter(['data' => $referencia->toDateString(), 'coletor' => $somenteProprias ? null : $filtros['coletor']])) }}" class="botao botao-secundario">Roteiro do dia</a>
+            @endcan
+            @can('coletas.conflitos')
+                @php($conflitos = \App\Models\Sincronizacao::where('situacao', 'CONFLITO')->count())
+                <a href="{{ route('conflitos.index') }}" @class(['botao', 'botao-perigo' => $conflitos, 'botao-secundario' => ! $conflitos])>Conflitos ({{ $conflitos }})</a>
+            @endcan
         </div>
     </div>
 
