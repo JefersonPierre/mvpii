@@ -5,13 +5,18 @@
     $menu = collect([
         ['rotulo' => 'Início', 'rota' => 'inicio', 'ativo' => request()->routeIs('inicio'), 'permissao' => null],
         ['rotulo' => 'Orçamentos', 'rota' => 'orcamentos.index', 'ativo' => request()->routeIs('orcamentos.*') && ! request()->routeIs('orcamentos.coletas.*'), 'permissao' => 'orcamentos'],
-        ['rotulo' => 'Coletas', 'rota' => 'coletas.index', 'ativo' => request()->routeIs('coletas.*', 'orcamentos.coletas.*'), 'permissao' => 'coletas.agenda'],
+        ['rotulo' => 'Coletas do dia (celular)', 'rota' => 'campo', 'ativo' => false, 'permissao' => 'coletas.registrar', 'so_coletor' => true],
+        ['rotulo' => 'Coletas', 'rota' => 'coletas.index', 'ativo' => request()->routeIs('coletas.*', 'orcamentos.coletas.*', 'conflitos.*'), 'permissao' => 'coletas.agenda'],
         ['rotulo' => 'Amostras', 'rota' => 'amostras.index', 'ativo' => request()->routeIs('amostras.*'), 'permissao' => 'amostras.consultar'],
+        ['rotulo' => 'Resultados', 'rota' => 'resultados.index', 'ativo' => request()->routeIs('resultados.*'), 'permissao' => 'resultados.lancar'],
+        ['rotulo' => 'Laudos', 'rota' => 'laudos.index', 'ativo' => request()->routeIs('laudos.*'), 'permissao' => 'laudos.consultar'],
         ['rotulo' => 'Clientes', 'rota' => 'clientes.index', 'ativo' => request()->routeIs('clientes.*', 'pontos.*'), 'permissao' => 'clientes.consultar'],
         ['rotulo' => 'Catálogo técnico', 'rota' => 'catalogo', 'ativo' => request()->routeIs('catalogo*'), 'permissao' => 'catalogo.consultar'],
         ['rotulo' => 'Usuários', 'rota' => 'usuarios.index', 'ativo' => request()->routeIs('usuarios.*'), 'permissao' => 'usuarios'],
         ['rotulo' => 'Configurações', 'rota' => 'configuracoes', 'ativo' => request()->routeIs('configuracoes*'), 'permissao' => 'configuracoes'],
-    ])->filter(fn ($item) => $item['permissao'] === null || Gate::allows($item['permissao']));
+    ])->filter(fn ($item) => ($item['permissao'] === null || Gate::allows($item['permissao']))
+        // O aplicativo do celular aparece no menu de quem tem o perfil Coletor.
+        && (empty($item['so_coletor']) || auth()->user()->temPerfil(\App\Support\Perfis::COLETOR)));
 @endphp
 
 {{-- Moldura das telas internas: menu lateral + conteúdo. --}}

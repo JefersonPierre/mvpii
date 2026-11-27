@@ -4,6 +4,9 @@ MVP do TCC: sistema para um laboratório de análise de qualidade da água (águ
 A documentação técnica do Entregável 1 (Cadastros e Orçamentos) está em [`docs/entregavel-1`](docs/entregavel-1).
 O Entregável 2 (Coletas e Perfis de Usuário), documentado em [`docs/entregavel-2`](docs/entregavel-2), acrescenta os perfis de acesso, o agendamento e o registro das coletas e o
 recebimento das amostras no laboratório.
+O Entregável 3 (Conformidade e Coleta pelo Celular), documentado em [`docs/entregavel-3`](docs/entregavel-3), acrescenta o
+aplicativo do coletor para celular (funciona sem internet), o roteiro das coletas em mapa, os resultados com a comparação
+com a legislação, a revisão e a liberação, e o laudo em PDF com QR Code de verificação.
 
 ## Stack
 
@@ -40,8 +43,8 @@ para ver o sistema como cada função do laboratório:
 | --- | --- | --- |
 | `admin@laboratorio.local` | Administrador | Tudo, inclusive usuários e configurações |
 | `recepcao@laboratorio.local` | Recepção | Clientes, orçamentos, agendamento de coletas e amostras |
-| `coletor@laboratorio.local` | Coletor | Somente as próprias coletas: agenda, ficha e registro da coleta |
-| `analista@laboratorio.local` | Analista | Recebimento das amostras, agenda e amostras |
+| `coletor@laboratorio.local` | Coletor | Somente as próprias coletas: agenda, roteiro, ficha e registro da coleta (também pelo celular, em `/campo`) |
+| `analista@laboratorio.local` | Analista | Recebimento das amostras, resultados, revisão e liberação, consulta de laudos |
 
 Os perfis e a matriz de permissões estão em `app/Support/Perfis.php` (seção 7.4 da documentação do Entregável 2).
 Ao atualizar um banco do Entregável 1 com `php artisan migrate`, os usuários já cadastrados recebem o perfil
@@ -54,11 +57,25 @@ Para recomeçar o banco do zero: `php artisan migrate:fresh --seed`.
 
 No ambiente local, o `db:seed` também cadastra um **catálogo de exemplo** (parâmetros, pacotes e limites da Portaria
 GM/MS nº 888/2021 e da Resolução CONAMA nº 430/2011), um cliente com um orçamento em rascunho e outro aprovado, com uma
-coleta realizada (amostras aguardando o recebimento) e outra agendada. Os preços são fictícios e os limites devem ser
+coleta realizada (amostras aguardando o recebimento), outra agendada e uma de dois dias atrás com resultados liberados e
+laudo emitido, além dos dados do laboratório e do responsável técnico usados no laudo. Os preços são fictícios e os limites devem ser
 conferidos com o texto oficial antes do uso real.
 
 Cópia de segurança do banco local (RNF06): `php artisan banco:copiar` cria uma cópia em `storage/app/private/copias`
 (mantidas por 30 dias) e `php artisan banco:restaurar` lista as cópias e restaura a escolhida.
+
+### Aplicativo do coletor (celular)
+
+Entre como coletor no celular e abra **Coletas do dia (celular)** no menu, ou o endereço `/campo`. O navegador oferece
+"Instalar" / "Adicionar à tela inicial". Depois da primeira abertura com internet, a tela abre sem conexão: as coletas de
+hoje e amanhã ficam no aparelho, e os registros feitos sem internet ficam como **Pendente de envio** e são enviados
+sozinhos quando a conexão volta (RF38–RF41). O acesso do aparelho vale 12 horas (RN39) e pode ser revogado pelo
+administrador em Usuários. Para instalar e usar a câmera e o GPS fora do `localhost`, o endereço precisa ser HTTPS
+(a publicação no Render já é).
+
+O mapa usa o OpenStreetMap (Leaflet) e a busca de coordenadas pelo endereço usa o Nominatim; para desligar a busca,
+`GEOCODIFICACAO=false`. Os PDFs dos laudos ficam em `storage/app/private/laudos`: em produção, esse diretório precisa
+estar em disco permanente e entrar na cópia de segurança.
 
 ## Testes e verificação
 
@@ -73,18 +90,24 @@ npm run build        # build de produção do CSS/JS
 ```
 app/
   Http/Controllers/    Telas: login, recuperação de senha, usuários, clientes, pontos de coleta, catálogo, orçamentos,
-                       coletas (agenda, agendamento, registro), amostras (recebimento, consulta)
-  Http/Middleware/     UsuarioAtivo (RN10)
+                       coletas (agenda, agendamento, registro, roteiro, conflitos), amostras (recebimento, consulta),
+                       resultados, laudos (emissão, envio, retificação, verificação pública), aplicativo do coletor
+  Http/Controllers/Api API do aplicativo do coletor (routes/api.php): coletas do aparelho e sincronização (RF39, RF41)
+  Http/Middleware/     UsuarioAtivo (RN10), AutenticarDispositivo (token do aparelho – RN39)
   Policies/            ColetaPolicy e AmostraPolicy: o coletor vê e registra só as próprias coletas (RN36)
   Http/Requests/       Validação dos formulários
   Models/              Usuario, UsuarioPerfil, Cliente, Contato, PontoColeta, TipoAmostra, Parametro, Pacote, Legislacao,
                        Limite, Orcamento, OrcamentoItem, Coleta, Amostra…
   Services/            Auditoria (RN08), CadastroComHistorico, CadastroClientes (UC03), CadastroPontos (UC04),
                        CadastroLegislacoes (UC06), LinksSenha (RF02), AgendamentoColetas (UC14), AvisosColeta (RF30),
-                       RegistroColetas (UC16), RecebimentoAmostras (UC17), Rastreabilidade (RNF12 e linha do tempo)
+                       RegistroColetas (UC16), RecebimentoAmostras (UC17), Rastreabilidade (RNF12 e linha do tempo),
+                       AcessoDispositivos (RN39), SincronizacaoColetas (UC22, UC23), Roteirizacao (UC20),
+                       ResultadosAmostras (UC24, UC25), EmissaoLaudos (UC26, UC27)
   Rules/               NomeUnico (RN05), RegistroAtivo (RN04), ColetorAtivo (RN29)
   Support/             RegrasAcesso (RN09), Documento (CPF/CNPJ – RN01), Numero (formato brasileiro),
-                       Perfis (matriz de permissões – RF26), CriteriosRecebimento (RN35)
+                       Perfis (matriz de permissões – RF26), CriteriosRecebimento (RN35), Conformidade (RN52),
+                       Roteiro (ordem de visita e links – RN47, RN48), QrCode
+resources/js/          campo.js (aplicativo do coletor, IndexedDB), mapa.js (Leaflet), resultados-form.js
 database/migrations/   Esquema do banco
 resources/views/       Telas (Blade)
 routes/web.php         Rotas do sistema
@@ -147,3 +170,11 @@ servidor) e `render.yaml`.
 - [x] MOD08 – Agendamento, agenda e ficha de coleta (RF27–RF32)
 - [x] MOD09 – Registro da coleta e recebimento das amostras (RF33–RF35)
 - [x] MOD06 – Consulta de amostras e coletas na ficha e no orçamento (RF36, RF37)
+
+## Andamento do Entregável 3
+
+- [x] MOD10 – Coleta em campo pelo celular: PWA, sincronização, conflitos e medições de campo (RF38–RF43)
+- [x] MOD11 – Roteirização: mapa, ordem de visita, Google Maps/Waze e coordenadas dos pontos (RF44–RF47)
+- [x] MOD12 – Resultados, legislação de referência, conformidade, revisão e liberação (RF48–RF51)
+- [x] MOD13 – Laudo em PDF, envio, retificação, verificação e dados do laboratório (RF52–RF56)
+- [x] MOD06 – Consulta de laudos e não conformidades (RF57)

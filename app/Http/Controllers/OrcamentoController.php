@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\OrcamentoRequest;
 use App\Models\Cliente;
 use App\Models\Configuracao;
+use App\Models\Laudo;
 use App\Models\Orcamento;
 use App\Models\Pacote;
 use App\Models\Parametro;
@@ -16,6 +17,7 @@ use App\Support\Documento;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 // UC08 – Elaborar orçamento (RF17, RF20) e UC11 – Consultar orçamentos (RF21)
@@ -88,8 +90,12 @@ class OrcamentoController extends Controller
         $saldo = $agendamento->saldo($orcamento);
         $revisoes = Orcamento::where(['ano' => $orcamento->ano, 'sequencia' => $orcamento->sequencia])->orderByDesc('revisao')->get();
         $registros = $historico->historico(CadastroOrcamentos::ENTIDADE, $orcamento->id);
+        $laudos = Gate::allows('laudos.consultar')
+            ? Laudo::with('amostra.pontoColeta')->whereHas('amostra.coleta', fn ($q) => $q->where('orcamento_id', $orcamento->id))
+                ->orderByDesc('emitido_em')->orderByDesc('id')->get()
+            : collect();
 
-        return view('orcamentos.show', compact('orcamento', 'revisoes', 'registros', 'saldo'));
+        return view('orcamentos.show', compact('orcamento', 'revisoes', 'registros', 'saldo', 'laudos'));
     }
 
     public function edit(Orcamento $orcamento): View|RedirectResponse

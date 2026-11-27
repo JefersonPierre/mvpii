@@ -219,6 +219,13 @@
         </div>
     @endif
 
+    @if ($laudos->isNotEmpty())
+        <div class="cartao space-y-3">
+            <h2 class="text-lg font-semibold">Laudos</h2>
+            <x-lista-laudos :laudos="$laudos" />
+        </div>
+    @endif
+
     <div class="cartao space-y-3">
         <h2 class="text-lg font-semibold">Histórico</h2>
         <x-tabela-historico :registros="$registros" :campos="[

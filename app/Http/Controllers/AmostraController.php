@@ -40,7 +40,7 @@ class AmostraController extends Controller
     public function show(Amostra $amostra, Rastreabilidade $rastreio): View
     {
         Gate::authorize('view', $amostra);
-        $amostra->load(['coleta.orcamento.cliente', 'coleta.coletor', 'pontoColeta', 'itens', 'coletadaPor', 'recebidaPor']);
+        $amostra->load(['coleta.orcamento.cliente', 'coleta.coletor', 'pontoColeta', 'itens', 'coletadaPor', 'recebidaPor', 'legislacao', 'liberadaPor', 'resultados.parametro', 'laudos', 'fotos']);
 
         return view('amostras.show', ['amostra' => $amostra, 'etapas' => $rastreio->linhaDoTempo($amostra)]);
     }

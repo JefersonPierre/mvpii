@@ -72,12 +72,12 @@
                 </div>
                 <div class="md:col-span-4">
                     <label for="logradouro" class="rotulo">Logradouro *</label>
-                    <input id="logradouro" name="logradouro" maxlength="150" value="{{ old('logradouro', $ponto->logradouro) }}" @class(['campo', 'campo-erro' => $errors->has('logradouro')])>
+                    <input id="logradouro" name="logradouro" data-endereco maxlength="150" value="{{ old('logradouro', $ponto->logradouro) }}" @class(['campo', 'campo-erro' => $errors->has('logradouro')])>
                     @error('logradouro') <p class="erro">{{ $message }}</p> @enderror
                 </div>
                 <div class="md:col-span-1">
                     <label for="numero" class="rotulo">Número</label>
-                    <input id="numero" name="numero" maxlength="20" value="{{ old('numero', $ponto->numero) }}" class="campo">
+                    <input id="numero" name="numero" data-endereco maxlength="20" value="{{ old('numero', $ponto->numero) }}" class="campo">
                 </div>
                 <div class="md:col-span-2">
                     <label for="complemento" class="rotulo">Complemento</label>
@@ -85,16 +85,16 @@
                 </div>
                 <div class="md:col-span-3">
                     <label for="bairro" class="rotulo">Bairro</label>
-                    <input id="bairro" name="bairro" maxlength="80" value="{{ old('bairro', $ponto->bairro) }}" class="campo">
+                    <input id="bairro" name="bairro" data-endereco maxlength="80" value="{{ old('bairro', $ponto->bairro) }}" class="campo">
                 </div>
                 <div class="md:col-span-4">
                     <label for="cidade" class="rotulo">Cidade *</label>
-                    <input id="cidade" name="cidade" maxlength="80" value="{{ old('cidade', $ponto->cidade) }}" @class(['campo', 'campo-erro' => $errors->has('cidade')])>
+                    <input id="cidade" name="cidade" data-endereco maxlength="80" value="{{ old('cidade', $ponto->cidade) }}" @class(['campo', 'campo-erro' => $errors->has('cidade')])>
                     @error('cidade') <p class="erro">{{ $message }}</p> @enderror
                 </div>
                 <div class="md:col-span-2">
                     <label for="uf" class="rotulo">UF *</label>
-                    <select id="uf" name="uf" @class(['campo', 'campo-erro' => $errors->has('uf')])>
+                    <select id="uf" name="uf" data-endereco @class(['campo', 'campo-erro' => $errors->has('uf')])>
                         <option value=""></option>
                         @foreach (\App\Models\Cliente::UFS as $uf)
                             <option value="{{ $uf }}" @selected(old('uf', $ponto->uf) === $uf)>{{ $uf }}</option>
@@ -110,10 +110,18 @@
             </div>
         </fieldset>
 
+        {{-- RF47 / RN49: coordenadas pelo endereço, com ajuste no mapa --}}
         <fieldset class="space-y-2">
-            <legend class="text-base font-semibold">Coordenadas (opcional)</legend>
-            <p class="ajuda">Em graus decimais, como aparecem no Google Maps (ex.: -22,9056 e -47,0608).</p>
-            <div class="grid gap-4 md:grid-cols-2">
+            <legend class="text-base font-semibold">Localização no mapa</legend>
+            <p class="ajuda">Usada no roteiro das coletas (RN47). Busque pelo endereço e confira; se preciso, arraste o marcador ou clique no mapa.
+                Sem localização, o ponto fica no fim do roteiro.</p>
+            @if ($sugestao)
+                <div class="alerta alerta-info flex flex-wrap items-center justify-between gap-2">
+                    <span>A coleta de {{ $sugestao->data_hora_coleta->format('d/m/Y') }} registrou a localização {{ $sugestao->latitude_coleta }}, {{ $sugestao->longitude_coleta }}.</span>
+                    <button type="button" data-usar-sugestao data-lat="{{ $sugestao->latitude_coleta }}" data-lng="{{ $sugestao->longitude_coleta }}" class="botao botao-pequeno botao-secundario">Usar esta localização</button>
+                </div>
+            @endif
+            <div class="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
                 <div>
                     <label for="latitude" class="rotulo">Latitude</label>
                     <input id="latitude" name="latitude" inputmode="decimal" value="{{ old('latitude', $ponto->latitude) }}"
@@ -126,7 +134,13 @@
                            @class(['campo font-mono', 'campo-erro' => $errors->has('longitude')])>
                     @error('longitude') <p class="erro">{{ $message }}</p> @enderror
                 </div>
+                @if (config('laboratorio.geocodificacao'))
+                    <button type="button" data-buscar-posicao class="botao botao-secundario">Buscar pelo endereço</button>
+                @endif
             </div>
+            <div data-mapa-posicao data-geocodificacao="{{ config('laboratorio.geocodificacao') ? '1' : '0' }}" data-rebuscar="{{ $ponto->exists ? '0' : '1' }}"
+                 class="h-72 w-full rounded-md bg-slate-100"></div>
+            <p class="ajuda" data-aviso-mapa aria-live="polite">{{ config('laboratorio.geocodificacao') ? 'Ao preencher o endereço, o sistema busca a posição no mapa.' : 'Clique no mapa para marcar a posição.' }}</p>
         </fieldset>
 
         <div class="flex justify-end gap-2">

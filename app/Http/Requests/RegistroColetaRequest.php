@@ -8,7 +8,8 @@ use App\Support\Numero;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-// UC16 – dados do registro da coleta (RF33, RN32): data e hora não futuras; motivo da amostra não coletada.
+// UC16 – dados do registro da coleta (RF33, RN32): data e hora não futuras; motivo da amostra não coletada; medições de
+// campo (RF43, RN46).
 class RegistroColetaRequest extends FormRequest
 {
     public function naoRealizada(): bool
@@ -19,7 +20,8 @@ class RegistroColetaRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $amostras = collect((array) $this->input('amostras', []))
-            ->map(fn ($a) => [...(array) $a, 'temperatura' => Numero::ler($a['temperatura'] ?? null)])
+            ->map(fn ($a) => [...(array) $a, 'temperatura' => Numero::ler($a['temperatura'] ?? null),
+                'medicoes' => collect((array) ($a['medicoes'] ?? []))->map(fn ($v) => Numero::ler($v))->all()])
             ->all();
         $this->merge(['amostras' => $amostras]);
     }
@@ -47,6 +49,8 @@ class RegistroColetaRequest extends FormRequest
             $regras["amostras.$id.temperatura"] = ['nullable', 'numeric', 'between:-10,60'];
             $regras["amostras.$id.observacoes"] = ['nullable', 'string', 'max:255', "required_if:amostras.$id.motivo,OUTRO"];
             $regras["amostras.$id.motivo"] = ["required_if:amostras.$id.situacao,".Amostra::NAO_COLETADA, 'nullable', Rule::in($motivos)];
+            $regras["amostras.$id.medicoes"] = ['nullable', 'array']; // RN46
+            $regras["amostras.$id.medicoes.*"] = ['nullable', 'numeric'];
         }
 
         return $regras;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ClienteRequest;
 use App\Models\Cliente;
+use App\Models\Laudo;
 use App\Models\RegistroAuditoria;
 use App\Services\CadastroClientes;
 use App\Services\CadastroPontos;
@@ -81,6 +82,7 @@ class ClienteController extends Controller
         // RF26: as abas Orçamentos e Histórico dependem do perfil (RN36: o coletor não vê os valores dos orçamentos).
         $abasPermitidas = array_values(array_filter(['dados', 'contatos', 'pontos',
             Gate::allows('orcamentos') ? 'orcamentos' : null, Gate::allows('coletas.agenda') ? 'coletas' : null,
+            Gate::allows('laudos.consultar') ? 'laudos' : null,
             Gate::allows('historico') ? 'historico' : null]));
         $aba = in_array($request->query('aba'), $abasPermitidas, true) ? $request->query('aba') : 'dados';
 
@@ -91,7 +93,12 @@ class ClienteController extends Controller
             ->when(! $request->user()->veTodasAsColetas(), fn ($q) => $q->where('coletas.coletor_id', $request->user()->id))
             ->get();
 
-        return view('clientes.show', compact('cliente', 'aba', 'abasPermitidas', 'historico', 'coletas'));
+        $laudos = in_array('laudos', $abasPermitidas, true)
+            ? Laudo::with('amostra.pontoColeta')->whereHas('amostra.coleta.orcamento', fn ($q) => $q->where('cliente_id', $cliente->id))
+                ->orderByDesc('emitido_em')->orderByDesc('id')->get()
+            : collect();
+
+        return view('clientes.show', compact('cliente', 'aba', 'abasPermitidas', 'historico', 'coletas', 'laudos'));
     }
 
     /** RF24: histórico do cliente e dos seus pontos de coleta, do mais recente para o mais antigo. */

@@ -2,6 +2,37 @@
 
 <x-layout titulo="Início">
     <h1 class="text-2xl font-semibold">Olá, {{ auth()->user()->nome }}</h1>
+    @if (auth()->user()->temPerfil(\App\Support\Perfis::COLETOR))
+        {{-- RF38: o coletor usa o sistema no celular, também sem conexão. --}}
+        <div class="cartao flex flex-wrap items-center justify-between gap-3">
+            <p>No celular, abra <strong>Coletas do dia</strong> para ver o roteiro e registrar as coletas, mesmo sem internet. Instale na tela inicial pelo menu do navegador.</p>
+            <a href="{{ route('campo') }}" class="botao botao-primario">Coletas do dia</a>
+        </div>
+    @endif
+    @if ($conflitos->isNotEmpty())
+        <div class="cartao space-y-2 border-amber-300 bg-amber-50">
+            <div class="flex items-center justify-between gap-2">
+                <h2 class="text-lg font-semibold text-amber-900">Conflitos de sincronização ({{ $conflitos->count() }})</h2>
+                <a href="{{ route('conflitos.index') }}" class="text-sm text-teal-700 hover:underline">Resolver</a>
+            </div>
+            @foreach ($conflitos as $c)
+                <a href="{{ route('conflitos.show', $c) }}" class="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 hover:bg-amber-100">
+                    <span class="text-sm"><strong>{{ $c->coleta->orcamento->cliente->nome }}</strong> · {{ $c->usuario->nome }}: {{ $c->motivo_conflito }}</span>
+                    <span class="text-xs whitespace-nowrap text-slate-500">{{ $c->recebida_em->format('d/m H:i') }}</span>
+                </a>
+            @endforeach
+        </div>
+    @endif
+    @if ($pendencias)
+        <div class="grid gap-4 sm:grid-cols-3">
+            @foreach ($pendencias as [$rotulo, $quantidade, $link])
+                <a href="{{ $link }}" class="cartao flex items-center justify-between gap-3 hover:border-teal-500">
+                    <span class="font-medium">{{ $rotulo }}</span>
+                    <span @class(['text-2xl font-semibold', 'text-teal-700' => $quantidade, 'text-slate-400' => ! $quantidade])>{{ $quantidade }}</span>
+                </a>
+            @endforeach
+        </div>
+    @endif
     @can('orcamentos')
     <div class="cartao">
         <p class="mb-4">O atendimento começa pelo orçamento. Use os atalhos abaixo:</p>

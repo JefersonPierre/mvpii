@@ -43,6 +43,16 @@ class Coleta extends Model
 
     public const PERIODOS = ['MANHA' => 'Manhã', 'TARDE' => 'Tarde'];
 
+    /** RN41: origem do registro da coleta. */
+    public const ORIGENS = [
+        'COMPUTADOR' => 'Computador',
+        'CELULAR' => 'Celular com conexão',
+        'CELULAR_SEM_CONEXAO' => 'Celular sem conexão',
+    ];
+
+    /** RN44: distância máxima entre a localização da coleta e o ponto antes do alerta. */
+    public const DISTANCIA_MAXIMA_METROS = 200;
+
     /** Motivos de coleta não realizada e de amostra não coletada (UC16 3a). */
     public const MOTIVOS_NAO_COLETA = [
         'PONTO_INACESSIVEL' => 'Ponto inacessível',
@@ -57,7 +67,8 @@ class Coleta extends Model
 
     protected function casts(): array
     {
-        return ['data' => 'date', 'data_hora_coleta' => 'datetime'];
+        return ['data' => 'date', 'data_hora_coleta' => 'datetime', 'registro_recebido_em' => 'datetime',
+            'conferir_localizacao' => 'boolean', 'ordem_visita' => 'integer'];
     }
 
     public function orcamento(): BelongsTo
@@ -83,6 +94,22 @@ class Coleta extends Model
     public function amostras(): HasMany
     {
         return $this->hasMany(Amostra::class)->orderBy('sequencia');
+    }
+
+    public function sincronizacoes(): HasMany
+    {
+        return $this->hasMany(Sincronizacao::class)->orderByDesc('recebida_em');
+    }
+
+    public function nomeOrigemRegistro(): ?string
+    {
+        return $this->origem_registro ? (self::ORIGENS[$this->origem_registro] ?? $this->origem_registro) : null;
+    }
+
+    /** RN47: a coleta fica no mapa pelo primeiro ponto com coordenadas. */
+    public function pontoNoMapa(): ?PontoColeta
+    {
+        return $this->amostras->map->pontoColeta->first(fn (?PontoColeta $p) => $p?->temCoordenadas());
     }
 
     public function nomeSituacao(): string

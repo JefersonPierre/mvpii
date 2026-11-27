@@ -18,7 +18,7 @@ class RegistroColetaController extends Controller
         if (! $coleta->podeRegistrar()) {
             return redirect()->route('coletas.show', $coleta)->with('erro', 'Só a coleta Agendada pode ser registrada.');
         }
-        $coleta->load(['orcamento.cliente', 'coletor', 'amostras.pontoColeta', 'amostras.itens']);
+        $coleta->load(['orcamento.cliente', 'coletor', 'amostras.pontoColeta', 'amostras.itens.pacote.parametros', 'amostras.itens.parametro']);
 
         return view('coletas.registro', compact('coleta'));
     }

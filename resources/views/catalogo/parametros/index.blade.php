@@ -47,7 +47,7 @@
                     <tbody>
                         @foreach ($parametros as $p)
                             <tr>
-                                <td class="font-medium">{{ $p->nome }}</td>
+                                <td class="font-medium">{{ $p->nome }}@if ($p->medido_em_campo) <span class="selo bg-teal-100 text-teal-800">Campo</span>@endif</td>
                                 <td class="font-mono text-xs">{{ $p->unidade }}</td>
                                 <td>{{ $p->metodo ?: '—' }}</td>
                                 <td class="font-mono text-xs">{{ Numero::decimal($p->limite_quantificacao) ?: '—' }}</td>
